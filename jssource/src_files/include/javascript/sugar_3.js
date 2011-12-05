@@ -419,8 +419,8 @@ function isNumeric(s) {
 	return isDecimal(s);
 }
 
-var date_reg_positions = {'Y': 1,'m': 2,'d': 3};
-var date_reg_format = '([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})'
+if (typeof date_reg_positions != "object") var date_reg_positions = {'Y': 1,'m': 2,'d': 3};
+if (typeof date_reg_format != "string") var date_reg_format = '([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})';
 function isDate(dtStr) {
 
 	if(dtStr.length== 0) {

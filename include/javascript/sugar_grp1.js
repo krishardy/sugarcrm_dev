@@ -95,7 +95,8 @@ return true;if(typeof num_grp_sep!='undefined'&&typeof dec_sep!='undefined')
 {s=unformatNumberNoParse(s,num_grp_sep,dec_sep).toString();}
 return/^[+-]?[0-9]+\.?[0-9]*$/.test(s);}
 function isNumeric(s){return isDecimal(s);}
-var date_reg_positions={'Y':1,'m':2,'d':3};var date_reg_format='([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})'
+if (typeof date_reg_positions != "object") var date_reg_positions={'Y':1,'m':2,'d':3};
+if (typeof date_reg_format != "string") var date_reg_format='([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})';
 function isDate(dtStr){if(dtStr.length==0){return true;}
 myregexp=new RegExp(date_reg_format)
 if(!myregexp.test(dtStr))
