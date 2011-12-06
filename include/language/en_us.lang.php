@@ -1373,6 +1373,7 @@ $app_strings = array (
     'LBL_EMAIL_QC_LEADS'                    => 'Lead',
     'LBL_EMAIL_QC_CONTACTS'                 => 'Contact',
     'LBL_EMAIL_QC_TASKS'                    => 'Task',
+    'LBL_EMAIL_QC_OPPORTUNITIES'            => 'Opportunity',
     'LBL_EMAIL_QUICK_CREATE'                => 'Quick Create',
 
     'LBL_EMAIL_REBUILDING_FOLDERS'          => 'Rebuilding Folders',
