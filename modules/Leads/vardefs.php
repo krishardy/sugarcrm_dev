@@ -146,14 +146,13 @@ $dictionary['Lead'] = array('table' => 'leads','audited'=>true, 'unified_search'
         'source'=>'non-db',
 		'vname'=>'LBL_REPORTS_TO',
   ),
-  'contacts'=>
-    array (
+    'contacts'=> array(
         'name' => 'contacts',
         'type' => 'link',
         'relationship' => 'contact_leads',
         'module' => "Contacts",
         'source' => 'non-db',
-        'vname' => 'LBL_LEADS',
+        'vname' => 'LBL_CONTACTS',
     ),
   /*'acc_name_from_accounts' =>
   array (
@@ -214,13 +213,14 @@ $dictionary['Lead'] = array('table' => 'leads','audited'=>true, 'unified_search'
     'vname'=>'LBL_CONTACT_ID',
 	'comment' => 'If converted, Contact ID resulting from the conversion'
   ),
-    'contact'=> array (
+    'contact' => array(
         'name' => 'contact',
         'type' => 'link',
         'link_type' => 'one',
         'relationship' => 'contact_leads',
         'source' => 'non-db',
         'vname' => 'LBL_LEADS',
+        'reportable' => false,
     ),
   'account_id' =>
   array (
@@ -238,14 +238,14 @@ $dictionary['Lead'] = array('table' => 'leads','audited'=>true, 'unified_search'
     'vname'=>'LBL_OPPORTUNITY_ID',
 	'comment' => 'If converted, Opportunity ID resulting from the conversion'
   ),
-  'opportunity' => array (
-    'name' => 'opportunity',
-    'type' => 'link',
-    'link_type' => 'one',
-    'relationship' => 'opportunity_leads',
-    'source'=>'non-db',
-    'vname'=>'LBL_LEADS',
-  ),
+    'opportunity' => array (
+        'name' => 'opportunity',
+        'type' => 'link',
+        'link_type' => 'one',
+        'relationship' => 'opportunity_leads',
+        'source' => 'non-db',
+        'vname' => 'LBL_OPPORTUNITIES',
+    ),
   'opportunity_name' =>
   array (
     'name' => 'opportunity_name',

@@ -102,7 +102,7 @@ if(!empty($license->settings['license_latest_versions'])){
 	include('sugar_version.php');
 	if(!empty($versions)){
 		foreach($versions as $version){
-			if($version['version'] > $sugar_version )
+			if(compareVersions($version['version'], $sugar_version))
 			{
 				$has_updates = true;
 				$xtpl->assign("VERSION", $version);

@@ -65,6 +65,8 @@ class ImportFormsTest extends Sugar_PHPUnit_Framework_OutputTestCase
         unset($GLOBALS['beanFiles']);
         unset($GLOBALS['beanList']);
         unset($GLOBALS['mod_strings']);
+
+        restore_error_handler();
     }
 
     public function testLoadImportBean()

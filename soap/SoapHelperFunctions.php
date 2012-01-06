@@ -766,6 +766,92 @@ function get_return_value($value, $module, $returnDomValue = false){
 }
 
 
+function get_encoded_Value($value) {
+
+    $value = htmlspecialchars($value);
+
+    // bug 47683, special characters cause OPI parser to fail
+    // htmlspecialchars or htmlentities does not convert control characters
+    // so we have to convert them by ourselves.
+    // Per http://en.wikipedia.org/wiki/XML#Valid_characters
+    // 00 is not allowed in XML
+    // 09, 0A, 0D and 85 does not require escaping
+    // CDATA is also needed
+    $conv_table = array();
+    $conv_table["\x00"] = ""; // not allowed in XML so remove it
+    $conv_table["\x01"] = "&#x01;";
+    $conv_table["\x02"] = "&#x02;";
+    $conv_table["\x03"] = "&#x03;";
+    $conv_table["\x04"] = "&#x04;";
+    $conv_table["\x05"] = "&#x05;";
+    $conv_table["\x06"] = "&#x06;";
+    $conv_table["\x07"] = "&#x07;";
+    $conv_table["\x08"] = "&#x08;";
+    //$conv_table["\x09"] = "&#x09;";
+    //$conv_table["\x0A"] = "&#x0A;";
+    $conv_table["\x0B"] = "&#x0B;";
+    $conv_table["\x0C"] = "&#x0C;";
+    //$conv_table["\x0D"] = "&#x0D;";
+    $conv_table["\x0E"] = "&#x0E;";
+    $conv_table["\x0F"] = "&#x0F;";
+    $conv_table["\x10"] = "&#x10";
+    $conv_table["\x11"] = "&#x11;";
+    $conv_table["\x12"] = "&#x12;";
+    $conv_table["\x13"] = "&#x13;";
+    $conv_table["\x14"] = "&#x14;";
+    $conv_table["\x15"] = "&#x15;";
+    $conv_table["\x16"] = "&#x16;";
+    $conv_table["\x17"] = "&#x17;";
+    $conv_table["\x18"] = "&#x18;";
+    $conv_table["\x19"] = "&#x19;";
+    $conv_table["\x1A"] = "&#x1A;";
+    $conv_table["\x1B"] = "&#x1B;";
+    $conv_table["\x1C"] = "&#x1C;";
+    $conv_table["\x1D"] = "&#x1D;";
+    $conv_table["\x1E"] = "&#x1E;";
+    $conv_table["\x1F"] = "&#x1F;";
+    $conv_table["\x80"] = "&#x80;";
+    $conv_table["\x81"] = "&#x81;";
+    $conv_table["\x82"] = "&#x82;";
+    $conv_table["\x83"] = "&#x83;";
+    $conv_table["\x84"] = "&#x84;";
+    $conv_table["\x85"] = "&#x85;";
+    $conv_table["\x86"] = "&#x86;";
+    $conv_table["\x87"] = "&#x87;";
+    $conv_table["\x88"] = "&#x88;";
+    $conv_table["\x89"] = "&#x89;";
+    $conv_table["\x8A"] = "&#x8A;";
+    $conv_table["\x8B"] = "&#x8B;";
+    $conv_table["\x8C"] = "&#x8C;";
+    $conv_table["\x8D"] = "&#x8D;";
+    $conv_table["\x8E"] = "&#x8E;";
+    $conv_table["\x8F"] = "&#x8F;";
+    $conv_table["\x90"] = "&#x90;";
+    $conv_table["\x91"] = "&#x91;";
+    $conv_table["\x92"] = "&#x92;";
+    $conv_table["\x93"] = "&#x93;";
+    $conv_table["\x94"] = "&#x94;";
+    $conv_table["\x95"] = "&#x95;";
+    $conv_table["\x96"] = "&#x96;";
+    $conv_table["\x97"] = "&#x97;";
+    $conv_table["\x98"] = "&#x98;";
+    $conv_table["\x99"] = "&#x99;";
+    $conv_table["\x9A"] = "&#x9A;";
+    $conv_table["\x9B"] = "&#x9B;";
+    $conv_table["\x9C"] = "&#x9C;";
+    $conv_table["\x9D"] = "&#x9D;";
+    $conv_table["\x9E"] = "&#x9E;";
+    $conv_table["\x9F"] = "&#x9F;";
+
+    // convert
+    $value = strtr($value, $conv_table);
+
+    // wrap it with CDATA
+    $value = '<value><![CDATA['.$value.']]></value>';
+
+    return $value;
+}
+
 function get_name_value_xml($val, $module_name){
 	$xml = '<item>';
 			$xml .= '<id>'.$val['id'].'</id>';
@@ -774,7 +860,7 @@ function get_name_value_xml($val, $module_name){
 			foreach($val['name_value_list'] as $name=>$nv){
 				$xml .= '<name_value>';
 				$xml .= '<name>'.htmlspecialchars($nv['name']).'</name>';
-				$xml .= '<value>'.htmlspecialchars($nv['value']).'</value>';
+                                $xml .= get_encoded_Value($nv['value']);
 				$xml .= '</name_value>';
 			}
 			$xml .= '</name_value_list>';
@@ -934,12 +1020,9 @@ function add_create_account($seed)
 
 function check_for_duplicate_contacts($seed){
 
-
 	if(isset($seed->id)){
 		return null;
 	}
-
-	$query = '';
 
 	$trimmed_email = trim($seed->email1);
     $trimmed_email2 = trim($seed->email2);
@@ -970,7 +1053,20 @@ function check_for_duplicate_contacts($seed){
 			}
 			return null;
 		}
-	}
+    } else {
+        //This section of code is executed if no emails are supplied in the $seed instance
+
+        //This query is looking for the id of Contact records that do not have a primary email address based on the matching
+        //first and last name and the record being not deleted.  If any such records are found we will take the first one and assume
+        //that it is the duplicate record
+        $query = "SELECT c.id as id FROM contacts c
+            LEFT OUTER JOIN email_addr_bean_rel eabr ON eabr.bean_id = c.id
+            WHERE c.first_name = '{$trimmed_first}' AND c.last_name = '{$trimmed_last}' AND c.deleted = 0 AND eabr.id IS NULL";
+
+        //Apply the limit query filter to this since we only need the first record
+        $result = $GLOBALS['db']->getOne($query);
+        return !empty($result) ? $result : null;
+    }
 }
 
 /*
@@ -1059,6 +1155,38 @@ function canViewPath( $path, $base ){
   $path = realpath( $path );
   $base = realpath( $base );
   return 0 !== strncmp( $path, $base, strlen( $base ) );
+}
+
+/**
+ * apply_values
+ *
+ * This function applies the given values to the bean object.  If it is a first time sync
+ * then empty values will not be copied over.
+ *
+ * @param Mixed $seed Object representing SugarBean instance
+ * @param Array $dataValues Array of fields/values to set on the SugarBean instance
+ * @param boolean $firstSync Boolean indicating whether or not this is a first time sync
+ */
+function apply_values($seed, $dataValues, $firstSync)
+{
+    if(!$seed instanceof SugarBean || !is_array($dataValues))
+    {
+        return;
+    }
+
+    foreach($dataValues as $field=>$value)
+    {
+        if($firstSync)
+        {
+            //If this is a first sync AND the value is not empty then we set it
+            if(!empty($value))
+            {
+                $seed->$field = $value;
+            }
+        } else {
+            $seed->$field = $value;
+        }
+    }
 }
 /*END HELPER*/
 

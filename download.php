@@ -43,6 +43,7 @@ if(empty($_REQUEST['id']) || empty($_REQUEST['type']) || !isset($_SESSION['authe
 }
 else {
     $file_type=''; // bug 45896
+    require_once("data/BeanFactory.php");
     ini_set('zlib.output_compression','Off');//bug 27089, if use gzip here, the Content-Length in hearder may be incorrect.
     // cn: bug 8753: current_user's preferred export charset not being honored
     $GLOBALS['current_user']->retrieve($_SESSION['authenticated_user_id']);
@@ -65,11 +66,12 @@ else {
 	    if(!file_exists('modules/' . $module . '/' . $bean_name . '.php')) {
 	         die($app_strings['ERROR_TYPE_NOT_VALID']);
 	    }
-	    $focus = BeanFactory::getBean($module, $_REQUEST['id']);
-        if(!$focus->ACLAccess('view')){
+
+	    $focus = BeanFactory::newBean($module);
+        if(!empty($focus) && !$focus->ACLAccess('view')){
             die($mod_strings['LBL_NO_ACCESS']);
 	    } // if
-
+        $focus->retrieve($_REQUEST['id']);
         // Pull up the document revision, if it's of type Document
         if ( isset($focus->object_name) && $focus->object_name == 'Document' ) {
             // It's a document, get the revision that really stores this file

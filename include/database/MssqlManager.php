@@ -411,6 +411,8 @@ class MssqlManager extends DBManager
         $dieOnError = false,
         $msg = '')
     {
+        $start = (int)$start;
+        $count = (int)$count;
         $newSQL = $sql;
         $distinctSQLARRAY = array();
         if (strpos($sql, "UNION") && !preg_match("/(\')(UNION).?(\')/i", $sql))

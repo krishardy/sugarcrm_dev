@@ -812,7 +812,7 @@ function _mergeCustomAppListStrings($file , $app_list_strings){
         $exemptDropdowns[] = "parent_type_display";
         $exemptDropdowns[] = "record_type_display";
         $exemptDropdowns[] = "record_type_display_notes";
-   
+
 	foreach($app_list_strings as $key=>$value)
 	{
 		if (!in_array($key, $exemptDropdowns) && array_key_exists($key, $app_list_strings_original))
@@ -1731,45 +1731,37 @@ function clean_xss($str, $cleanImg=true) {
 	if(empty($sugar_config['email_xss']))
 	$sugar_config['email_xss'] = getDefaultXssTags();
 
-	$arr = unserialize(base64_decode($sugar_config['email_xss']));
-
-	$regex = '';
-	foreach($arr as $v) {
-		if(!empty($regex)) {
-			$regex .= "|";
-		}
-		$regex .= $v;
-	}
-
-	$tag_regex        = "#<({$regex})[^>]*>?#sim";
+	$xsstags = unserialize(base64_decode($sugar_config['email_xss']));
 
 	// cn: bug 13079 - "on\w" matched too many non-events (cONTact, strONG, etc.)
 	$jsEvents  = "onblur|onfocus|oncontextmenu|onresize|onscroll|onunload|ondblclick|onclick|";
 	$jsEvents .= "onmouseup|onmouseover|onmousedown|onmouseenter|onmouseleave|onmousemove|onload|onchange|";
 	$jsEvents .= "onreset|onselect|onsubmit|onkeydown|onkeypress|onkeyup|onabort|onerror|ondragdrop";
 
-	$attribute_regex	= "#<.+({$jsEvents})[^=>]*=[^>]*>#sim";
+	$attribute_regex	= "#\b({$jsEvents})\s*=\s*(?|(?!['\"])\S+|['\"].+?['\"])#sim";
 	$javascript_regex	= '@<[^/>][^>]+(expression\(|j\W*a\W*v\W*a|v\W*b\W*s\W*c\W*r|&#|/\*|\*/)[^>]*>@sim';
 	$imgsrc_regex		= '#<[^>]+src[^=]*=([^>]*?http(s)?://[^>]*)>#sim';
 	$css_url			= '#url\(.*\.\w+\)#';
 
+	$tagsrex = '#<\/?(\w+)((?:\s+(?:\w|\w[\w-]*\w)(?:\s*=\s*(?:\".*?\"|\'.*?\'|[^\'\">\s]+))?)+\s*|\s*)\/?>#im';
 
-	$str = str_replace("\t", "", $str);
-
-	$matches = array_merge(
-	xss_check_pattern($tag_regex, $str),
-	xss_check_pattern($javascript_regex, $str)
-	);
-
-
-    $jsMatches = xss_check_pattern($attribute_regex, $str);
-    if(!empty($jsMatches)){
-        preg_match_all($attribute_regex, $str, $newMatches, PREG_PATTERN_ORDER);
-        if(!empty($newMatches[0][0])){
-            $matches2 = array_merge(xss_check_pattern("#({$jsEvents})#sim", $newMatches[0][0]));
-            $matches = array_merge($matches, $matches2);
+	$tagmatches = array();
+	$matches = array();
+	preg_match_all($tagsrex, $str, $tagmatches, PREG_PATTERN_ORDER);
+    foreach($tagmatches[1] as $no => $tag) {
+        if(in_array($tag, $xsstags)) {
+            // dangerous tag - take out whole
+            $matches[] = $tagmatches[0][$no];
+            continue;
+        }
+        $attrmatch = array();
+        preg_match_all($attribute_regex, $tagmatches[2][$no], $attrmatch, PREG_PATTERN_ORDER);
+        if(!empty($attrmatch[0])) {
+            $matches = array_merge($matches, $attrmatch[0]);
         }
     }
+
+	$matches = array_merge($matches, xss_check_pattern($javascript_regex, $str));
 
 	if($cleanImg) {
 		$matches = array_merge($matches,
@@ -1831,7 +1823,7 @@ function xss_check_pattern($pattern, $str) {
  * 		"ALPHANUM"
  * @param boolean $dieOnBadData true (default) if you want to die if bad data if found, false if not
  */
-function clean_string($str, $filter = "STANDARD", $dieOnBadData = true) 
+function clean_string($str, $filter = "STANDARD", $dieOnBadData = true)
 {
 	global  $sugar_config;
 
@@ -3358,10 +3350,10 @@ function getPhpInfo($level=-1) {
  */
 function string_format($format, $args){
 	$result = $format;
-    
+
     /** Bug47277 fix.
      * If args array has only one argument, and it's empty, so empty single quotes are used '' . That's because
-     * IN () fails and IN ('') works. 
+     * IN () fails and IN ('') works.
      */
     if (count($args) == 1)
     {
@@ -3373,7 +3365,7 @@ function string_format($format, $args){
         }
     }
     /* End of fix */
-    
+
 	for($i = 0; $i < count($args); $i++){
 		$result = str_replace('{'.$i.'}', $args[$i], $result);
 	}
@@ -4448,4 +4440,27 @@ if(file_exists('custom/application/Ext/Utils/custom_utils.ext.php')) {
 function sanitize($input, $quotes = ENT_QUOTES, $charset = 'UTF-8', $remove = false)
 {
     return htmlentities($input, $quotes, $charset);
+}
+
+
+/**
+ * utf8_recursive_encode
+ * 
+ * This function walks through an Array and recursively calls utf8_encode on the
+ * values of each of the elements.
+ *
+ * @param $data Array of data to encode
+ * @return utf8 encoded Array data
+ */
+function utf8_recursive_encode($data)
+{
+    $result = array();
+    foreach($data as $key=>$val) {
+        if(is_array($val)) {
+           $result[$key] = utf8_recursive_encode($val);
+        } else {
+           $result[$key] = utf8_encode($val);
+        }
+    }
+    return $result;
 }

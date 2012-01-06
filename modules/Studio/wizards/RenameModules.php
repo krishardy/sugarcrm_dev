@@ -413,7 +413,7 @@ class RenameModules
             foreach($this->changedModules as $changedModuleName => $renameFields)
             {
                 if( !( isset($subpanelMetaData['type']) &&  $subpanelMetaData['type'] == 'collection') //Dont bother with collections
-                    && $subpanelMetaData['module'] == $changedModuleName && isset($subpanelMetaData['title_key']) )
+                    && isset($subpanelMetaData['module']) && $subpanelMetaData['module'] == $changedModuleName && isset($subpanelMetaData['title_key']) )
                 {
                     $replaceKey = $subpanelMetaData['title_key'];
                     if( !isset($mod_strings[$replaceKey]) )
@@ -456,13 +456,13 @@ class RenameModules
 
 		$layout_defs = array();
 
-        if ( file_exists( 'modules/' . $bean->module_dir . '/metadata/subpaneldefs.php') )
+        if ( isset($bean->module_dir) && file_exists( 'modules/' . $bean->module_dir . '/metadata/subpaneldefs.php') )
             require('modules/' . $bean->module_dir . '/metadata/subpaneldefs.php');
 
-        if ( file_exists( 'custom/modules/' . $bean->module_dir . '/Ext/Layoutdefs/layoutdefs.ext.php'))
+        if ( isset($bean->module_dir) && file_exists( 'custom/modules/' . $bean->module_dir . '/Ext/Layoutdefs/layoutdefs.ext.php'))
             require('custom/modules/' . $bean->module_dir . '/Ext/Layoutdefs/layoutdefs.ext.php');
 
-         return isset($layout_defs[$bean->module_dir]['subpanel_setup']) ? $layout_defs[$bean->module_dir]['subpanel_setup'] : $layout_defs;
+        return isset($bean->module_dir) && isset($layout_defs[$bean->module_dir]['subpanel_setup']) ? $layout_defs[$bean->module_dir]['subpanel_setup'] : $layout_defs;
 	}
 
     /**
@@ -574,7 +574,7 @@ class RenameModules
             $dc = new DashletCacheBuilder();
             $dc->buildCache();
 		}
-		require_once($GLOBALS['sugar_config']['cache_dir'].'dashlets/dashlets.php');
+		require($GLOBALS['sugar_config']['cache_dir'].'dashlets/dashlets.php');
 
         foreach($this->changedModules as $moduleName => $replacementLabels)
         {
@@ -598,7 +598,7 @@ class RenameModules
         {
             if( isset($dashletData['module']) && $dashletData['module'] == $moduleName && file_exists($dashletData['meta']) )
             {
-                require_once( $dashletData['meta'] );
+                require( $dashletData['meta'] );
                 $dashletTitle = $dashletMeta[$dashletName]['title'];
                 $currentModuleStrings = return_module_language($this->selectedLanguage, $moduleName);
                 $modStringKey = array_search($dashletTitle,$currentModuleStrings);

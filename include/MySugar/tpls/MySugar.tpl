@@ -77,6 +77,11 @@ document.body.setAttribute("class", "yui-skin-sam");
 {literal}
 var mySugarLoader = new YAHOO.util.YUILoader({
 	require : ["my_sugar", "sugar_charts"],
+    // Bug #48940 Skin always must be blank
+    skin: {
+        base: 'blank',
+        defaultSkin: ''
+    },
 	onSuccess: function(){
 		initMySugar();
 		initmySugarCharts();

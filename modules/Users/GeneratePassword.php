@@ -177,8 +177,22 @@ if (isset($_POST['link']) && $_POST['link'] == '1'){
     $htmlBody = str_replace('$contact_user_pwd_last_changed', TimeDate::getInstance()->nowDb(), $htmlBody);
     $body = str_replace('$contact_user_user_name', $usr->user_name, $body);
     $body = str_replace('$contact_user_pwd_last_changed', TimeDate::getInstance()->nowDb(), $body);
-    $emailTemp->body_html = $htmlBody;
-    $emailTemp->body = $body;
+    // Bug #36250 Replacement of all template variables.
+    $macro_nv=array();
+    $template_data =  $emailTemp->parse_email_template(
+        array(
+            'subject' => $emailTemp->subject,
+            'body_html' => $htmlBody,
+            'body' => $body
+        ),
+        $usr->module_dir,
+        $usr,
+        $macro_nv
+    );
+    $emailTemp->subject = $template_data['subject'];
+    $emailTemp->body_html = $template_data['body_html'];
+    $emailTemp->body = $template_data['body'];
+    // Bug #36250 is ended
     require_once('include/SugarPHPMailer.php');
 
     $itemail=$usr->emailAddress->getPrimaryAddress($usr);

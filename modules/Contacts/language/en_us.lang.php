@@ -207,6 +207,7 @@ $mod_strings = array (
 	'LBL_CASES_SUBPANEL_TITLE' => 'Cases',
 	'LBL_BUGS_SUBPANEL_TITLE' => 'Bugs',
 	'LBL_PROJECTS_SUBPANEL_TITLE' => 'Projects',
+    'LBL_PROJECTS_RESOURCES' => 'Projects Resources',
 	'LBL_TARGET_OF_CAMPAIGNS' => 'Campaigns (Target of) :',
 	'LBL_CAMPAIGNS'	=>	'Campaigns',
 	'LBL_CAMPAIGN_LIST_SUBPANEL_TITLE'=>'Campaigns',

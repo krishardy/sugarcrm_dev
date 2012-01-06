@@ -76,7 +76,7 @@ class One2MBeanRelationship extends One2MRelationship
 
         //Make sure we load the current relationship state to the LHS link
         if ((isset($lhs->$lhsLinkName) && is_a($lhs->$lhsLinkName, "Link2")) || $lhs->load_relationship($lhsLinkName)) {
-            $lhs->$lhsLinkName->getBeans();
+            $lhs->$lhsLinkName->load();
         }
 
         $this->updateFields($lhs, $rhs, $additionalFields);
@@ -267,6 +267,8 @@ class One2MBeanRelationship extends One2MRelationship
         $query = '';
 
         $alias = empty($params['join_table_alias']) ? "{$link->name}_rel": $params['join_table_alias'];
+        $alias = $GLOBALS['db']->getHelper()->getValidDBName($alias, 'alias');
+
         //Set up any table aliases required
         $targetTableWithAlias = "$targetTable $alias";
         $targetTable = $alias;

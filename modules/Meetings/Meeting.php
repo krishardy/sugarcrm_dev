@@ -35,16 +35,6 @@ if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-/*********************************************************************************
-
- * Description:	 TODO: To be written.
- * Portions created by SugarCRM are Copyright(C) SugarCRM, Inc.
- * All Rights Reserved.
- * Contributor(s): ______________________________________..
- ********************************************************************************/
-
-
-
 
 // Meeting is used to store customer information.
 class Meeting extends SugarBean {
@@ -470,8 +460,6 @@ class Meeting extends SugarBean {
 		// cn: bug 9494 - passing a contact breaks this call
 		$notifyUser =($meeting->current_notify_user->object_name == 'User') ? $meeting->current_notify_user : $current_user;
 		// cn: bug 8078 - fixed call to $timedate
-		$prefDate = $notifyUser->getUserDateTimePreferences();
-
 		if(strtolower(get_class($meeting->current_notify_user)) == 'contact') {
 			$xtpl->assign("ACCEPT_URL", $sugar_config['site_url'].
 							'/index.php?entryPoint=acceptDecline&module=Meetings&contact_id='.$meeting->current_notify_user->id.'&record='.$meeting->id);
@@ -494,7 +482,8 @@ class Meeting extends SugarBean {
 		    }
 		}
 		$xtpl->assign("MEETING_TYPE", isset($meeting->type)? $typestring:"");
-		$xtpl->assign("MEETING_STARTDATE", $timedate->to_display_date_time($meeting->date_start,true,true,$notifyUser)." ".$prefDate['userGmt']);
+		$startdate = $timedate->fromDb($meeting->date_start);
+		$xtpl->assign("MEETING_STARTDATE", $timedate->asUser($startdate, $notifyUser)." ".TimeDate::userTimezoneSuffix($startdate, $notifyUser));
 		$xtpl->assign("MEETING_HOURS", $meeting->duration_hours);
 		$xtpl->assign("MEETING_MINUTES", $meeting->duration_minutes);
 		$xtpl->assign("MEETING_DESCRIPTION", $meeting->description);

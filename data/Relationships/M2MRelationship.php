@@ -148,10 +148,8 @@ class M2MRelationship extends SugarRelationship
         if ($this->self_referencing)
             $this->addSelfReferencing($lhs, $rhs, $additionalFields);
 
-            if ($lhs->$lhsLinkName->beansAreLoaded())
-                $lhs->$lhsLinkName->addBean($rhs);
-            if ($rhs->$rhsLinkName->beansAreLoaded())
-                $rhs->$rhsLinkName->addBean($lhs);
+            $lhs->$lhsLinkName->addBean($rhs);
+            $rhs->$rhsLinkName->addBean($lhs);
 
             $this->callAfterAdd($lhs, $rhs, $lhsLinkName);
             $this->callAfterAdd($rhs, $lhs, $rhsLinkName);

@@ -83,6 +83,7 @@ class UsersController extends SugarController
 	    $_POST['should_remind'] = '1';
 	    $_POST['reminder_time'] = 1800;
         $_POST['mailmerge_on'] = 'on';
+        $_POST['receive_notifications'] = $current_user->receive_notifications;
         $_POST['user_theme'] = (string) SugarThemeRegistry::getDefault();
 	    
 	    // save and redirect to new view

@@ -122,7 +122,7 @@ class Popup_Picker
 		<input type="button" name="button" class="button" title="{$app_strings['LBL_CANCEL_BUTTON_TITLE']}" accesskey="{$app_strings['LBL_CANCEL_BUTTON_KEY']}" value="{$app_strings['LBL_CANCEL_BUTTON_LABEL']}" onclick="toggleDisplay('addform');" />
 EOQ;
 		$createContact = <<<EOQ
-		<input type="button" name="showAdd" class="button" value="{$mod_strings['LNK_NEW_CONTACT']}" onclick="toggleDisplay('addform');" />
+		<input type="button" id="showAdd" name="showAdd" class="button" value="{$mod_strings['LNK_NEW_CONTACT']}" onclick="toggleDisplay('addform');" />
 EOQ;
 		$addformheader = get_form_header($mod_strings['LNK_NEW_CONTACT'], $formSave, false);
 		$button  = "<form action='index.php' method='post' name='form' id='form'>\n";

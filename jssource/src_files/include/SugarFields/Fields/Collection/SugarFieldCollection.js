@@ -421,7 +421,8 @@ if(typeof(SUGAR.collection) == "undefined") {
                 SUGAR.collection.safe_clone(oneField, true) :
                 oneField.cloneNode(true);
             this.cloneField[1] = oneField.parentNode;
-            this.more_status = true;
+            //fixing bug @48829: Team field shows fully expanded multiple teams instead of hiding multiple teams
+            //this.more_status = true;
             var clone_id = this.form + '_' + this.field + '_collection_0';
 
             if (typeof sqs_objects != 'undefined' && typeof sqs_objects[clone_id] != 'undefined') {

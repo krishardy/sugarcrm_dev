@@ -63,7 +63,7 @@
 {{/if}}
 
 {* -- Begin QuickCreate Specific -- *}
-{if $smarty.request.action != 'SubpanelEdits'}
+{if !($smarty.request.action == 'SubpanelEdits' || $smarty.request.action == 'Quickedit')}
 <input type="hidden" name="primary_address_street" value="{$smarty.request.primary_address_street}">
 <input type="hidden" name="primary_address_city" value="{$smarty.request.primary_address_city}">
 <input type="hidden" name="primary_address_state" value="{$smarty.request.primary_address_state}">

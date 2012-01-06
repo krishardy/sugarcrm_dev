@@ -1382,13 +1382,18 @@ SE.composeLayout = {
         if(json_objects['email_template_object']['fields']['subject'] != '' ) { // cn: bug 7743, don't stomp populated Subject Line
             document.getElementById('emailSubject' + idx).value = decodeURI(encodeURI(json_objects['email_template_object']['fields']['subject']));
         }
-
-        var text = decodeURI(encodeURI(json_objects['email_template_object']['fields']['body_html'])).replace(/<BR>/ig, '\n').replace(/<br>/gi, "\n").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"');
-
-        // cn: bug 14361 - text-only templates don't fill compose screen
-        if(text == '') {
-            text = decodeURI(encodeURI(json_objects['email_template_object']['fields']['body'])).replace(/<BR>/ig, '\n').replace(/<br>/gi, "\n").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"').replace(/\r\n/gi,"<br/>");
+        var text = '';
+        if(json_objects['email_template_object']['fields']['text_only'] == 1){
+        	text = "<p>" + decodeURI(encodeURI(json_objects['email_template_object']['fields']['body'])).replace(/<BR>/ig, '</p><p>').replace(/<br>/gi, "</p><p>").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"') + "</p>";
+        	document.getElementById("setEditor1").checked = true;
+        	SUGAR.email2.composeLayout.renderTinyMCEToolBar('1', 1);
         }
+        else{
+        	text = decodeURI(encodeURI(json_objects['email_template_object']['fields']['body_html'])).replace(/<BR>/ig, '\n').replace(/<br>/gi, "\n").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"');
+        	document.getElementById("setEditor1").checked = false;
+        	SUGAR.email2.composeLayout.renderTinyMCEToolBar('1', 0);
+        }
+               
 
         var tiny = SE.util.getTiny('htmleditor' + idx);
         var tinyHTML = tiny.getContent();
@@ -1419,7 +1424,7 @@ SE.composeLayout = {
 			return;
         }
 
-        if(idx) {
+        if(idx != null) {
             var sel = document.getElementById('signatures' + idx);
         } else {
             var sel = document.getElementById('signature_id');
@@ -1493,14 +1498,43 @@ SE.composeLayout = {
                 html = htmlPart1 + htmlPart2;
             }
 
-            // [pre|ap]pend
+            // pre|append
 			start = html.indexOf('<div><hr></div>');
             if(SE.userPrefs.signatures.signature_prepend == 'true' && start > -1) {
 				var htmlPart1 = html.substr(0, start);
 				var htmlPart2 = html.substr(start, html.length);
                 var newHtml = htmlPart1 + openTag + newSignature + closeTag + htmlPart2;
             } else if(SUGAR.email2.userPrefs.signatures.signature_prepend == 'true') {
-            	var newHtml = '<br/>' + openTag + newSignature + closeTag + html;
+
+            	//bug 48285
+                var newHtml = html;
+
+                //remove custom spacing
+                var spacing = '<span id="spacing"><br /><br /><br /></span>&nbsp;';
+                var customSpacingStart = html.indexOf(spacing);
+
+                if (customSpacingStart > -1)
+                {
+                    var part1 = newHtml.substr(0, customSpacingStart);
+                    var part2 = newHtml.substr(customSpacingStart+spacing.length, newHtml.length);
+                    newHtml = part1 + part2;
+                }
+
+                //append signature
+                var bodyStartTag = '<body>';
+                var body = newHtml.indexOf(bodyStartTag);
+
+                if (body > -1)
+                {
+                    var part1 = newHtml.substr(0, body+bodyStartTag.length);
+                    var part2 = newHtml.substr(body+bodyStartTag.length, newHtml.length);
+                    newHtml = part1 + spacing + openTag + newSignature + closeTag + part2;
+                }
+                else
+                {
+                    newHtml = openTag + newSignature + closeTag + newHtml;
+                }
+                //end bug 48285
             } else {
                 var body = html.indexOf('</body>');
                 if (body > -1) {
@@ -1991,9 +2025,30 @@ SE.composeLayout = {
         } // if
         //Flag determines if we should clear the tiny contents or just append
         if (typeof(composePackage.clearBody) != 'undefined' && composePackage.clearBody)
+        {
             SE.composeLayout.tinyHTML = '';
+        }
         else
-            SE.composeLayout.tinyHTML = tinyHTML + composePackage.body;
+        {
+            //bug 48179
+            //check tinyHTML for closing tags
+            var body = tinyHTML.lastIndexOf('</body>');
+            spacing = '<span id="spacing"><br /><br /><br /></span>&nbsp;';
+
+            if (body > -1)
+            {
+                var part1 = tinyHTML.substr(0, body);
+                var part2 = tinyHTML.substr(body, tinyHTML.length);
+                var newHtml = part1 + spacing + composePackage.body + part2;
+            }
+            else
+            {
+                var newHtml = tinyHTML + spacing + composePackage.body;
+            }
+            //end bug 48179
+
+            SE.composeLayout.tinyHTML = newHtml;
+        }
 
          tiny.setContent(SE.composeLayout.tinyHTML);
          //Indicate that the contents has been loaded successfully.

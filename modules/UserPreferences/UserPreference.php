@@ -238,9 +238,7 @@ class UserPreference extends SugarBean
      */
     public function getUserDateTimePreferences()
     {
-        global $sugar_config, $db, $timezones, $timedate, $current_user;
-
-		require_once('include/timezone/timezones.php');
+        global $sugar_config, $db, $timedate, $current_user;
 
         $user = $this->_userFocus;
 
@@ -248,29 +246,20 @@ class UserPreference extends SugarBean
 
         if(!empty($user) && $this->loadPreferences('global')) {
             // forced to set this to a variable to compare b/c empty() wasn't working
-            $timeZone = $user->getPreference("timezone");
+            $timeZone = TimeDate::userTimezone($user);
             $timeFormat = $user->getPreference("timef");
             $dateFormat = $user->getPreference("datef");
 
             // cn: bug xxxx cron.php fails because of missing preference when admin hasn't logged in yet
             $timeZone = empty($timeZone) ? 'America/Los_Angeles' : $timeZone;
 
-            if(empty($timeZone)) $timeZone = '';
             if(empty($timeFormat)) $timeFormat = $sugar_config['default_time_format'];
             if(empty($dateFormat)) $dateFormat = $sugar_config['default_date_format'];
 
-            $equinox = date('I');
-
-            $serverHourGmt = date('Z') / 60 / 60;
-
-            $userOffsetFromServerHour = $user->getPreference("timez");
-
-            $userHourGmt = $serverHourGmt + $userOffsetFromServerHour;
-
             $prefDate['date'] = $dateFormat;
             $prefDate['time'] = $timeFormat;
-            $prefDate['userGmt'] = "(GMT".($timezones[$timeZone]['gmtOffset'] / 60).")";
-            $prefDate['userGmtOffset'] = $timezones[$timeZone]['gmtOffset'] / 60;
+            $prefDate['userGmt'] = TimeDate::tzName($timeZone);
+            $prefDate['userGmtOffset'] = $timedate->getUserUTCOffset($user);
 
             return $prefDate;
         } else {
@@ -278,17 +267,17 @@ class UserPreference extends SugarBean
             $prefDate['time'] = $timedate->get_time_format();
 
             if(!empty($user) && $user->object_name == 'User') {
-                $timeZone = $user->getPreference("timezone");
+                $timeZone = TimeDate::userTimezone($user);
                 // cn: bug 9171 - if user has no time zone, cron.php fails for InboundEmail
                 if(!empty($timeZone)) {
-                    $prefDate['userGmt'] = "(GMT".($timezones[$timeZone]['gmtOffset'] / 60).")";
-                    $prefDate['userGmtOffset'] = $timezones[$timeZone]['gmtOffset'] / 60;
+                    $prefDate['userGmt'] = TimeDate::tzName($timeZone);
+                    $prefDate['userGmtOffset'] = $timedate->getUserUTCOffset($user);
                 }
             } else {
-                $timeZone = $current_user->getPreference("timezone");
+                $timeZone = TimeDate::userTimezone($current_user);
                 if(!empty($timeZone)) {
-                    $prefDate['userGmt'] = "(GMT".($timezones[$timeZone]['gmtOffset'] / 60).")";
-                    $prefDate['userGmtOffset'] = $timezones[$timeZone]['gmtOffset'] / 60;
+                    $prefDate['userGmt'] = TimeDate::tzName($timeZone);
+                    $prefDate['userGmtOffset'] = $timedate->getUserUTCOffset($current_user);
                 }
             }
 

@@ -611,7 +611,7 @@ abstract class DBManager
             if (isset($value['source']) && $value['source'] != 'db')
                 continue;
 
-            $name = $value['name'];
+            $name = strtolower($value['name']);
             // add or fix the field defs per what the DB is expected to give us back
             $this->getHelper()->massageFieldDef($value,$tablename);
 

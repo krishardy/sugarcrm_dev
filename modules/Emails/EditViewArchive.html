@@ -95,7 +95,7 @@
 							<table cellpadding="0" cellspacing="0">
 								<tr>
 									<td nowrap>
-										<slot><input name='date_start' onblur="parseDate(this, '{CALENDAR_DATEFORMAT}');" id='jscal_field' tabindex='1' maxlength='10' size='11' type="text" value="{DATE_START}"> <img src="index.php?entryPoint=getImage&themeName={THEME}&imageName=jscalendar.gif" alt="{APP.LBL_ENTER_DATE}"  id="jscal_trigger" align="absmiddle">&nbsp;</slot>
+										<slot><input name='date_start' onblur="parseDate(this, '{CALENDAR_DATEFORMAT}');" id='date_start_date' tabindex='1' maxlength='10' size='11' type="text" value="{DATE_START}"> <img src="index.php?entryPoint=getImage&themeName={THEME}&imageName=jscalendar.gif" alt="{APP.LBL_ENTER_DATE}"  id="jscal_trigger" align="absmiddle">&nbsp;</slot>
 									</td>
 									<td nowrap>
 										<slot><input name='time_start' size='5' maxlength='5' tabindex='1' type="text" value='{TIME_START}'>{TIME_MERIDIEM}</slot>
@@ -306,7 +306,7 @@
 </form>
 <script type="text/javascript">
 Calendar.setup ({
-        inputField : "jscal_field", ifFormat : "{CALENDAR_DATEFORMAT}", showsTime : false, button : "jscal_trigger", singleClick : true, step : 1
+        inputField : "date_start_date", ifFormat : "{CALENDAR_DATEFORMAT}", showsTime : false, button : "jscal_trigger", singleClick : true, step : 1
 });
 </script>
 {TINY}

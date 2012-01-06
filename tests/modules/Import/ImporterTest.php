@@ -69,6 +69,7 @@ class ImporterTest extends Sugar_PHPUnit_Framework_TestCase
         $GLOBALS['db']->query("DELETE FROM contacts where created_by='{$GLOBALS['current_user']->id}'");
 
         SugarTestUserUtilities::removeAllCreatedAnonymousUsers();
+        restore_error_handler();
     }
     
     public function providerCsvData()

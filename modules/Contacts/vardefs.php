@@ -305,14 +305,13 @@ array (
 			'source' => 'non-db',
 			'vname' => 'LBL_PROJECTS',
 		),
-     'project_resource'=>
-		array (
-			'name' => 'project_resource',
-			'type' => 'link',
-			'relationship' => 'projects_contacts_resources',
-			'source' => 'non-db',
-			'vname' => 'LBL_PROJECTS',
-		),
+    'project_resource' => array(
+        'name' => 'project_resource',
+        'type' => 'link',
+        'relationship' => 'projects_contacts_resources',
+        'source' => 'non-db',
+        'vname' => 'LBL_PROJECTS_RESOURCES',
+    ),
 
 
 
@@ -324,14 +323,14 @@ array (
 			'source' => 'non-db',
 			'vname' => 'LBL_TASKS',
 		),
-	'tasks_parent'=>
-		array (
-			'name' => 'tasks_parent',
-			'type' => 'link',
-			'relationship' => 'contact_tasks_parent',
-			'source' => 'non-db',
-			'vname' => 'LBL_TASKS',
-	),
+	'tasks_parent' => array(
+        'name' => 'tasks_parent',
+        'type' => 'link',
+        'relationship' => 'contact_tasks_parent',
+        'source' => 'non-db',
+        'vname' => 'LBL_TASKS',
+        'reportable' => false
+    ),
 		'user_sync'=>
 		array (
 			'name' => 'user_sync',
@@ -389,7 +388,7 @@ array (
             'table' => 'campaigns',
             'isnull' => 'true',
             'module' => 'Campaigns',
-//            'reportable'=>false,
+            'reportable'=>false,
             'massupdate' => false,
                 'duplicate_merge'=> 'disabled',
           ),

@@ -652,7 +652,7 @@ class SugarView
         $file
         )
     {
-        global $sugar_config, $theme, $current_user, $sugar_version, $sugar_flavor, $mod_strings, $app_strings, $app_list_strings, $action, $timezones;
+        global $sugar_config, $theme, $current_user, $sugar_version, $sugar_flavor, $mod_strings, $app_strings, $app_list_strings, $action;
         global $gridline, $request_string, $modListHeader, $dashletData, $authController, $locale, $currentModule, $import_bean_map, $image_path, $license;
         global $user_unique_key, $server_unique_key, $barChartColors, $modules_exempt_from_availability_check, $dictionary, $current_language, $beanList, $beanFiles, $sugar_build, $sugar_codename;
         global $timedate, $login_error; // cn: bug 13855 - timedate not available to classic views.
@@ -766,11 +766,10 @@ EOHTML;
             if(!empty($config_js)){
                 echo "<script>\n".implode("\n", $config_js)."</script>\n";
             }
-
             if ( isset($sugar_config['email_sugarclient_listviewmaxselect']) ) {
                 echo "<script>SUGAR.config.email_sugarclient_listviewmaxselect = {$GLOBALS['sugar_config']['email_sugarclient_listviewmaxselect']};</script>";
             }
-
+            
             $image_server = (defined('TEMPLATE_URL'))?TEMPLATE_URL . '/':'';
             echo '<script type="text/javascript">SUGAR.themes.image_server="' . $image_server . '";</script>'; // cn: bug 12274 - create session-stored key to defend against CSRF
             echo '<script type="text/javascript">var name_format = "' . $locale->getLocaleFormatMacro() . '";</script>';
@@ -1127,9 +1126,9 @@ EOHTML;
             $url = ajaxLink("index.php?module=$module&action=EditView&return_module=$module&return_action=DetailView");
             $theTitle .= <<<EOHTML
 &nbsp;
-<a href="{$url}" class="utilsLink">
+<a id="create_image" href="{$url}" class="utilsLink">
 <img src='{$createImageURL}' alt='{$GLOBALS['app_strings']['LNK_CREATE']}'></a>
-<a href="{$url}" class="utilsLink">
+<a id="create_link" href="{$url}" class="utilsLink">
 {$GLOBALS['app_strings']['LNK_CREATE']}
 </a>
 EOHTML;

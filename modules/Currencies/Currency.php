@@ -553,7 +553,7 @@ function getCurrencyDropDown($focus, $field='currency_id', $value='', $view='Det
         $selectCurrency = $currency->getSelectOptions($value);
 		
 		$currency->setCurrencyFields($currency_fields);
-		$html = '<select name="'. $field. '" ';
+		$html = '<select name="'. $field. '" id="' . $field  . '_select" ';
 		if($view != 'MassUpdate')
 			$html .= 'onchange="CurrencyConvertAll(this.form);"';
 		$html .= '>'. $selectCurrency . '</select>';

@@ -152,6 +152,8 @@
 
             //Grouping for the quick compose functionality.
             $sugar_grp_quick_compose = array(
+            'include/javascript/jsclass_base.js' => 'include/javascript/sugar_grp_quickcomp.js',
+            'include/javascript/jsclass_async.js' => 'include/javascript/sugar_grp_quickcomp.js',
             'modules/Emails/javascript/vars.js' => 'include/javascript/sugar_grp_quickcomp.js',
             'include/SugarFields/Fields/Collection/SugarFieldCollection.js' => 'include/javascript/sugar_grp_quickcomp.js', //For team selection
             'modules/Emails/javascript/EmailUIShared.js' => 'include/javascript/sugar_grp_quickcomp.js',

@@ -186,6 +186,8 @@ class MysqlManager extends DBManager
         $dieOnError = false,
         $msg = '')
     {
+        $start = (int)$start;
+        $count = (int)$count;
         if ($start < 0)
             $start = 0;
         $GLOBALS['log']->debug('Limit Query:' . $sql. ' Start: ' .$start . ' count: ' . $count);

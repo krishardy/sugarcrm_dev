@@ -83,8 +83,8 @@ class TemplateHandler {
         while($e = $d->read()){
             if(!empty($view) && $e != $view )continue;
             $end =strlen($e) - 4;
-            if(is_file($cacheDir .'/' . $e) && $end > 1 && substr($e, $end) == '.tpl'){
-                unlink($cacheDir .'/' . $e);
+            if(is_file($cacheDir . $e) && $end > 1 && substr($e, $end) == '.tpl'){
+                unlink($cacheDir . $e);
             }
         }
     }

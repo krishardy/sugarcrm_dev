@@ -287,7 +287,15 @@ class EmailTemplate extends SugarBean {
 			$this->parsed_entities=array();
 
 		//parse the template and find all the dynamic strings that need replacement.
-		$pattern_prefix = '$'.strtolower($beanList[$focus_name]).'_';
+        // Bug #48111 It's strange why prefix for User module is contact_user (see self::generateFieldDefsJS method)
+        if ($beanList[$focus_name] == 'User')
+        {
+            $pattern_prefix = '$contact_user_';
+        }
+        else
+        {
+            $pattern_prefix = '$'.strtolower($beanList[$focus_name]).'_';
+        }
 		$pattern_prefix_length = strlen($pattern_prefix);
 		$pattern = '/\\'.$pattern_prefix.'[A-Za-z_0-9]*/';
 

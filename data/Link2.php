@@ -60,6 +60,8 @@ class Link2 {
     protected $rows;   //any additional fields on the relationship
     protected $loaded; //true if this link has been loaded from the database
     protected $relationship_fields = array();
+    //Used to store unsaved beans on this relationship that will be combined with the ones pulled from the DB if getBeans() is called.
+    protected $tempBeans = array();
 
     /**
      * @param  $linkName String name of a link field in the module's vardefs
@@ -355,11 +357,18 @@ class Link2 {
         {
             $this->beans = array();
             $rel_module = $this->getRelatedModuleName();
+            //First swap in the temp loaded beans
+            $this->beans = $this->tempBeans;
+            $this->tempBeans = array();
+            //now load from the rows
             foreach ($this->rows as $id => $vals)
             {
-                $tmpBean = BeanFactory::getBean($rel_module, $id);
-                if($tmpBean !== FALSE)
-                    $this->beans[$id] = $tmpBean;
+                if (empty($this->beans[$id]))
+                {
+                    $tmpBean = BeanFactory::getBean($rel_module, $id);
+                    if($tmpBean !== FALSE)
+                        $this->beans[$id] = $tmpBean;
+                }
             }
         }
 
@@ -479,30 +488,45 @@ class Link2 {
     }
 
     /**
+     * Add a bean object to the list of beans currently loaded to this relationship.
+     * This for the most part should not need to be called except by the relatipnship implementation classes.
      * @param SugarBean $bean
      * @return void
      */
     public function addBean($bean)
     {
         if (!is_array($this->beans))
-            $this->getBeans();
-        $this->beans[$bean->id] = $bean;
+        {
+            $this->tempBeans[$bean->id] = $bean;
+        }
+        else {
+            $this->beans[$bean->id] = $bean;
+        }
+
     }
 
     /**
+     * Remove a bean object from the list of beans currently loaded to this relationship.
+     * This for the most part should not need to be called except by the relatipnship implementation classes.
+     *
      * @param SugarBean $bean
      * @return void
      */
     public function removeBean($bean)
     {
-        if (!is_array($this->beans))
-            $this->getBeans();
-        unset($this->beans[$bean->id]);
-        unset($this->rows[$bean->id]);
+        if (!is_array($this->beans) && isset($this->tempBeans[$bean->id]))
+        {
+            unset($this->tempBeans[$bean->id]);
+        } else {
+            unset($this->beans[$bean->id]);
+            unset($this->rows[$bean->id]);
+        }
     }
 
 
     /**
+     * Directly queries the databse for set of values. The relationship classes and not link should handle this.
+     * @deprecated
      * @param $table_name string relationship table
      * @param $join_key_values array of key=>values to identify this relationship by
      * @return bool true if the given join key set exists in the relationship table
@@ -570,7 +594,7 @@ class Link2 {
     }
 
     /**
-     * @depricated
+     * @deprecated
      * Gets the vardef for the relationship of this link.
      */
     public function _get_link_table_definition($table_name, $def_name) {
@@ -582,7 +606,7 @@ class Link2 {
     }
 
     /**
-     * @depricated
+     * @deprecated
      * Return the name of the role field for the passed many to many table.
      * if there is no role filed : return false
      * @param $table_name name of relationship table to inspect

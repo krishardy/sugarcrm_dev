@@ -59,9 +59,9 @@
 			<input type="hidden" name="return_action">
 			<input type="hidden" name="return_id">
 
-<input title="{APP.LBL_EDIT_BUTTON_TITLE}" accessKey="{APP.LBL_EDIT_BUTTON_KEY}" class="button" onclick="this.form.return_module.value='InboundEmail'; this.form.return_action.value='EditView'; this.form.return_id.value='{ID}'; this.form.action.value='EditView'" type="submit" name="Edit" value="  {APP.LBL_EDIT_BUTTON_LABEL}  ">
+<input title="{APP.LBL_EDIT_BUTTON_TITLE}" accessKey="{APP.LBL_EDIT_BUTTON_KEY}" class="button" onclick="this.form.return_module.value='InboundEmail'; this.form.return_action.value='EditView'; this.form.return_id.value='{ID}'; this.form.action.value='EditView'" type="submit" id="emailEdit" name="Edit" value="  {APP.LBL_EDIT_BUTTON_LABEL}  ">
 
-<input title="{APP.LBL_DUPLICATE_BUTTON_TITLE}" accessKey="{APP.LBL_DUPLICATE_BUTTON_KEY}" class="button" onclick="this.form.return_module.value='InboundEmail'; this.form.return_action.value='index'; this.form.isDuplicate.value=true; this.form.action.value='EditView'" type="submit" name="Duplicate" value=" {APP.LBL_DUPLICATE_BUTTON_LABEL} ">
+<input title="{APP.LBL_DUPLICATE_BUTTON_TITLE}" accessKey="{APP.LBL_DUPLICATE_BUTTON_KEY}" class="button" onclick="this.form.return_module.value='InboundEmail'; this.form.return_action.value='index'; this.form.isDuplicate.value=true; this.form.action.value='EditView'" type="submit" id="emailDuplicate" name="Duplicate" value=" {APP.LBL_DUPLICATE_BUTTON_LABEL} ">
 
 <input title="{APP.LBL_DELETE_BUTTON_TITLE}" accessKey="{APP.LBL_DELETE_BUTTON_KEY}" class="button" onclick="this.form.return_module.value='InboundEmail'; this.form.return_action.value='ListView'; this.form.action.value='Delete'; return confirm('{APP.NTC_DELETE_CONFIRMATION}')" type="submit" name="Delete" id="Delete" value=" {APP.LBL_DELETE_BUTTON_LABEL} ">
 	</form>

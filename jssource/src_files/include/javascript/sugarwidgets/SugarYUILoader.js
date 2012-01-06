@@ -39,7 +39,13 @@
  */
 //Load up the YUI loader and go!
 SUGAR.yui = {
-	loader : new YAHOO.util.YUILoader()
+	loader : new YAHOO.util.YUILoader({
+        // Bug #48940 Skin always must be blank
+        skin: {
+            base: 'blank',
+            defaultSkin: ''
+        }
+    })
 } 
 
 SUGAR.yui.loader.addModule({

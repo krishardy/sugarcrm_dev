@@ -50,6 +50,11 @@ class MassUpdate
 	var $sugarbean = null;
 
 	/**
+	 * where clauses used to filter rows that have to be updated
+	 */
+	var $where_clauses = '';
+
+	/**
 	  * set the sugar bean to its internal member
 	  * @param sugar bean reference
 	  */
@@ -160,10 +165,8 @@ eoq;
 				  $_POST[$post] = '';
 				}else{
 				  unset($_POST[$post]);
-			        }
-                        }elseif ( $value == '--null--'){  //Bug36693 MassUpdate for ENUM with Option '0'
-				$_POST[$post] = '';	
-			}
+			    }
+            }
 			if(is_string($value) && isset($this->sugarbean->field_defs[$post])) {
 		        if(($this->sugarbean->field_defs[$post]['type'] == 'bool'
 				 	|| (!empty($this->sugarbean->field_defs[$post]['custom_type']) && $this->sugarbean->field_defs[$post]['custom_type'] == 'bool'
@@ -944,7 +947,7 @@ EOHTML;
 						$html = <<<EOQ
 		<td width="15%" scope="row">$displayname</td>
 		<td ><input class="sqsEnabled" autocomplete="off" id="mass_assigned_user_name" name='assigned_user_name' type="text" value=""><input id='mass_assigned_user_id' name='assigned_user_id' type="hidden" value="" />
-		<span class="id-ff multiple"><button title="{$app_strings['LBL_SELECT_BUTTON_TITLE']}" accessKey="{$app_strings['LBL_SELECT_BUTTON_KEY']}" type="button" class="button" value='{$app_strings['LBL_SELECT_BUTTON_LABEL']}' name=btn1
+		<span class="id-ff multiple"><button id="mass_assigned_user_name_btn" title="{$app_strings['LBL_SELECT_BUTTON_TITLE']}" accessKey="{$app_strings['LBL_SELECT_BUTTON_KEY']}" type="button" class="button" value='{$app_strings['LBL_SELECT_BUTTON_LABEL']}' name=btn1
 				onclick='open_popup("Users", 600, 400, "", true, false, $encoded_popup_request_data);' /><img src="$img"></button></span>
 		</td>
 EOQ;
@@ -974,13 +977,6 @@ EOQ;
 			   	   $new_options[$key] = $value;
 			   }
 			   $options = $new_options;
-			}else{  #Bug36693 MassUpdate for ENUM with Option '0'
-				$new_options[''] = '';
-				$new_options['--null--'] = isset($options['']) ? $options[''] : $options['0'];
-				foreach($options as $key=>$value) {
-			   	   $new_options[$key] = $value;
-			    }
-			    $options = $new_options;
 			}
 			$options = get_select_options_with_id_separate_key($options, $options, '', true);;
 			$html .= '<select id="mass_'.$varname.'" name="'.$varname.'">'.$options.'</select>';
@@ -1221,29 +1217,15 @@ EOQ;
             }elseif(file_exists('modules/'.$module.'/metadata/metafiles.php')){
                 require('modules/'.$module.'/metadata/metafiles.php');
             }
+            
+            $searchFields = $this->getSearchFields($module);
+            $searchdefs = $this->getSearchDefs($module);
 
-            if (file_exists('custom/modules/'.$module.'/metadata/searchdefs.php'))
-            {
-                require_once('custom/modules/'.$module.'/metadata/searchdefs.php');
-            }
-            elseif (!empty($metafiles[$module]['searchdefs']))
-            {
-                require_once($metafiles[$module]['searchdefs']);
-            }
-            elseif (file_exists('modules/'.$module.'/metadata/searchdefs.php'))
-            {
-                require_once('modules/'.$module.'/metadata/searchdefs.php');
-            }
-
-
-            if(!empty($metafiles[$module]['searchfields']))
-                require_once($metafiles[$module]['searchfields']);
-            elseif(file_exists('modules/'.$module.'/metadata/SearchFields.php'))
-                require_once('modules/'.$module.'/metadata/SearchFields.php');
             if(empty($searchdefs) || empty($searchFields)) {
                $this->where_clauses = ''; //for some modules, such as iframe, it has massupdate, but it doesn't have search function, the where sql should be empty.
                return;
             }
+
             $searchForm = new SearchForm($seed, $module);
             $searchForm->setup($searchdefs, $searchFields, 'include/SearchForm/tpls/SearchFormGeneric.tpl');
         }
@@ -1260,6 +1242,41 @@ EOQ;
         }
     }
 
+    protected function getSearchDefs($module, $metafiles = array())
+    {
+        if (file_exists('custom/modules/'.$module.'/metadata/searchdefs.php'))
+        {
+            require_once('custom/modules/'.$module.'/metadata/searchdefs.php');
+        }
+        elseif (!empty($metafiles[$module]['searchdefs']))
+        {
+            require_once($metafiles[$module]['searchdefs']);
+        }
+        elseif (file_exists('modules/'.$module.'/metadata/searchdefs.php'))
+        {
+            require_once('modules/'.$module.'/metadata/searchdefs.php');
+        }
+
+        return isset($searchdefs) ? $searchdefs : array();
+    }
+
+    protected function getSearchFields($module, $metafiles = array())
+    {
+        if (file_exists('custom/modules/' . $module . '/metadata/SearchFields.php'))
+        {
+            require_once('custom/modules/' . $module . '/metadata/SearchFields.php');
+        }
+        elseif(!empty($metafiles[$module]['searchfields']))
+        {
+            require_once($metafiles[$module]['searchfields']);
+        }
+        elseif(file_exists('modules/'.$module.'/metadata/SearchFields.php'))
+        {
+            require_once('modules/'.$module.'/metadata/SearchFields.php');
+        }
+
+        return isset($searchFields) ? $searchFields : array();
+    }
     /**
      * This is kinda a hack how it is implimented, but will tell us whether or not a focus has
      * fields for Mass Update

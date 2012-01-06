@@ -40,6 +40,7 @@ $vardefs = array (
 			'name' => $_object_name . '_number',
 			'vname' => 'LBL_NUMBER',
 			'type' => 'int',
+            'readonly' => true,
 			'len' => 11,
 			'required' => true,
 			'auto_increment' => true,

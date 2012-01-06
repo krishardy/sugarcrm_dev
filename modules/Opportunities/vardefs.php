@@ -338,28 +338,28 @@ $dictionary['Opportunity'] = array('table' => 'opportunities','audited'=>true, '
 		'vname'=>'LBL_LEADS',
   ),
 
-  'campaigns' =>
-		array (
-  			'name' => 'campaigns',
-    		'type' => 'link',
-    		'relationship' => 'opportunities_campaign',
-    		'module'=>'CampaignLog',
-    		'bean_name'=>'CampaignLog',
-    		'source'=>'non-db',
-			'vname'=>'LBL_CAMPAIGNS',
-	  	),
+    'campaigns' => array(
+        'name' => 'campaigns',
+        'type' => 'link',
+        'relationship' => 'opportunities_campaign',
+        'module' => 'CampaignLog',
+        'bean_name' => 'CampaignLog',
+        'source' => 'non-db',
+        'vname' => 'LBL_CAMPAIGNS',
+        'reportable' => false
+    ),
 
-  'campaign_link' =>
-  array (
-    'name' => 'campaign_link',
-    'type' => 'link',
-    'relationship' => 'opportunities_campaign',
-    'vname' => 'LBL_CAMPAIGNS',
-    'link_type' => 'one',
-    'module'=>'Campaigns',
-    'bean_name'=>'Campaign',
-    'source'=>'non-db',
-  ),
+    'campaign_link' => array(
+        'name' => 'campaign_link',
+        'type' => 'link',
+        'relationship' => 'opportunities_campaign',
+        'vname' => 'LBL_CAMPAIGNS',
+        'link_type' => 'one',
+        'module' => 'Campaigns',
+        'bean_name' => 'Campaign',
+        'source' => 'non-db',
+        'reportable' => false
+    ),
   'currencies' =>
   array (
     'name' => 'currencies',

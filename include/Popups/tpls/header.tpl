@@ -35,7 +35,6 @@
  ********************************************************************************/
 
 *}
-<script type="text/javascript" src="{sugar_getjspath file='include/javascript/sugar_3.js'}"></script>
 <script type="text/javascript" src="{sugar_getjspath file='include/javascript/popup_helper.js'}"></script>
 <script type='text/javascript' src='{sugar_getjspath file='include/javascript/sugar_grp_overlib.js'}'></script>
 <script type="text/javascript">
@@ -95,7 +94,7 @@ function clearAll() {
 <p>
 {{if isset($popupMeta)}}
 <div id='addformlink'>
-<input type="button" name="showAdd" class="button" value="{$popupMeta.create.createButton}" onclick="toggleDisplay('addform');" />
+<input type="button" id="showAdd" name="showAdd" class="button" value="{$popupMeta.create.createButton}" onclick="toggleDisplay('addform');" />
 </div>
 {{/if}}
 <div id='addform' style='display:none;position:relative;z-index:2;left:0px;top:0px;'>

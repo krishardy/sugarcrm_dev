@@ -320,30 +320,34 @@ class Popup_Picker
             }
         } //end Unlinked Emails
 
-		foreach ($focus_notes_list as $note) {
-			
-			$history_list[] = array('name' => $note->name,
-									 'id' => $note->id,
-									 'type' => "Note",
-									 'direction' => '',
-									 'module' => "Notes",
-									 'status' => '',
-									 'parent_id' => $note->parent_id,
-									 'parent_type' => $note->parent_type,
-									 'parent_name' => $note->parent_name,
-									 'contact_id' => $note->contact_id,
-									 'contact_name' => $note->contact_name,
-									 'date_modified' => $note->date_modified,
-									 'description' => $this->formatDescription($note->description),
-									 'date_type' => $app_strings['DATA_TYPE_MODIFIED'],
-									 'sort_value' => strtotime($note->fetched_row['date_modified'].' GMT'),
-									 );
-			if(!empty($note->filename)) {
-				$count = count($history_list);
-				$count--;
-				$history_list[$count]['filename'] = $note->filename;
-				$history_list[$count]['fileurl'] = UploadFile::get_url($note->filename,$note->id);
-			}
+		foreach ($focus_notes_list as $note)
+        {
+			if ($note->ACLAccess('view'))
+            {
+                $history_list[] = array('name' => $note->name,
+                                         'id' => $note->id,
+                                         'type' => "Note",
+                                         'direction' => '',
+                                         'module' => "Notes",
+                                         'status' => '',
+                                         'parent_id' => $note->parent_id,
+                                         'parent_type' => $note->parent_type,
+                                         'parent_name' => $note->parent_name,
+                                         'contact_id' => $note->contact_id,
+                                         'contact_name' => $note->contact_name,
+                                         'date_modified' => $note->date_modified,
+                                         'description' => $this->formatDescription($note->description),
+                                         'date_type' => $app_strings['DATA_TYPE_MODIFIED'],
+                                         'sort_value' => strtotime($note->fetched_row['date_modified'].' GMT'),
+                                         );
+                if(!empty($note->filename))
+                {
+                    $count = count($history_list);
+                    $count--;
+                    $history_list[$count]['filename'] = $note->filename;
+                    $history_list[$count]['fileurl'] = UploadFile::get_url($note->filename,$note->id);
+                }
+            }
 		} // end Notes
 
         $xtpl=new XTemplate ('modules/Activities/Popup_picker.html');

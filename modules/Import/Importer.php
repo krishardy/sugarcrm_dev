@@ -515,6 +515,15 @@ class Importer
         // call any logic needed for the module preSave
         $focus->beforeImportSave();
 
+        // if modified_user_id is set, set the flag to false so SugarBEan will not reset it
+        if (isset($focus->modified_user_id) && $focus->modified_user_id) {
+            $focus->update_modified_by = false;
+        }
+        // if created_by is set, set the flag to false so SugarBEan will not reset it
+        if (isset($focus->created_by) && $focus->created_by) {
+            $focus->set_created_by = false;
+        }
+
         $focus->save(false);
 
         // call any logic needed for the module postSave

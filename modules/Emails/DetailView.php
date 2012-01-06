@@ -55,6 +55,7 @@ if(!isset($_REQUEST['record']) || empty($_REQUEST['record'])) {
 require_once('include/DetailView/DetailView.php');
 global $gridline;
 global $app_strings;
+global $focus;
 
 // SETTING DEFAULTS
 $focus		= new Email();

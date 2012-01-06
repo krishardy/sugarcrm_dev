@@ -1,6 +1,131 @@
 /*********************************************************************************
  * SugarCRM Community Edition is a customer relationship management program developed by
  * SugarCRM, Inc. Copyright (C) 2004-2011 SugarCRM Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by the
+ * Free Software Foundation with the addition of the following permission added
+ * to Section 15 as permitted in Section 7(a): FOR ANY PART OF THE COVERED WORK
+ * IN WHICH THE COPYRIGHT IS OWNED BY SUGARCRM, SUGARCRM DISCLAIMS THE WARRANTY
+ * OF NON INFRINGEMENT OF THIRD PARTY RIGHTS.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along with
+ * this program; if not, see http://www.gnu.org/licenses or write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA.
+ *
+ * You can contact SugarCRM, Inc. headquarters at 10050 North Wolfe Road,
+ * SW2-130, Cupertino, CA 95014, USA. or at email address contact@sugarcrm.com.
+ *
+ * The interactive user interfaces in modified source and object code versions
+ * of this program must display Appropriate Legal Notices, as required under
+ * Section 5 of the GNU Affero General Public License version 3.
+ *
+ * In accordance with Section 7(b) of the GNU Affero General Public License version 3,
+ * these Appropriate Legal Notices must retain the display of the "Powered by
+ * SugarCRM" logo. If the display of the logo is not reasonably feasible for
+ * technical reasons, the Appropriate Legal Notices must display the words
+ * "Powered by SugarCRM".
+ ********************************************************************************/
+function SugarClass(){this.init();}
+SugarClass.prototype.init=function(){}
+SugarClass.inherit=function(className,parentClassName){var str=className+".prototype = new "+parentClassName+"();";str+=className+".prototype.constructor = "+className+";";str+=className+".superclass = "+parentClassName+".prototype;";try{eval(str);}catch(e){}}
+SugarClass.inherit("SugarContainer","SugarClass");function SugarContainer(root_div){GLOBAL_REGISTRY.container=this;this.init(root_div);}
+SugarContainer.prototype.init=function(root_div){this.root_div=root_div;SugarContainer.superclass.init.call(this);}
+SugarContainer.prototype.start=function(root_widget){this.root_widget=new root_widget();this.root_widget.load(this.root_div);}
+if(typeof(global_request_registry)=="undefined"){var global_request_registry=new Object();}
+var req_count=0;SugarClass.inherit("SugarDateTime","SugarClass");function SugarDateTime(){this.init(root_div);}
+SugarDateTime.prototype.init=function(root_div){this.root_div=root_div;}
+SugarDateTime.mysql2jsDateTime=function(mysql_date,mysql_time){var match=new RegExp(date_reg_format);if(((result=match.exec(mysql_date)))==null){return null;}
+var match2=new RegExp(time_reg_format);if((result2=match2.exec(mysql_time))==null){result2=[0,0,0,0];}
+var match3=/^0(\d)/;if((result3=match3.exec(result2[1]))!=null){result2[1]=result3[1];}
+if(typeof(result2[3])!='undefined'){if(result2[3]=='pm'||result2[3]=='PM'){if(parseInt(result2[1])!=12){result2[1]=parseInt(result2[1])+12;}}
+else if(result2[1]==12){result2[1]=0;}}
+return new Date(result[date_reg_positions['Y']],result[date_reg_positions['m']]-1,result[date_reg_positions['d']],result2[1],result2[2],0,0);}
+SugarDateTime.prototype.getFormattedDate=function(date_obj){var returnDate='';var userDateFormat=GLOBAL_REGISTRY['current_user']['fields']['date_time_format']['date'];var dow=GLOBAL_REGISTRY['calendar_strings']['dom_cal_weekdays_long'][date_obj.getDay()];var month=date_obj.getMonth()+1;month=GLOBAL_REGISTRY['calendar_strings']['dom_cal_month_long'][month];returnDate=dow;for(i=0;i<5;i++){switch(userDateFormat.charAt(i)){case"Y":returnDate+=" "+date_obj.getFullYear();break;case"m":returnDate+=" "+month;break;case"d":returnDate+=" "+date_obj.getDate();break;default:}}
+return returnDate;}
+SugarDateTime.getFormattedDate=SugarDateTime.prototype.getFormattedDate;SugarDateTime.prototype.getFormattedDOW=function(date_obj){var hour=config.strings.mod_strings.Calendar.dow[date_obj.getDay()];}
+SugarDateTime.getFormattedDOW=SugarDateTime.prototype.getFormattedDOW;SugarDateTime.getAMPM=function(date_obj){var hour=date_obj.getHour();var am_pm='AM';if(hour>12){hour-=12;am_pm='PM';}
+else if(hour==12){am_pm='PM';}
+else if(hour==0){hour=12;}
+return am_pm;}
+SugarDateTime.getFormattedHour=SugarDateTime.prototype.getFormattedHour;SugarDateTime.prototype.parseUTCDate=function(date_string){var match=/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z/;if(((result=match.exec(date_string)))!=null){var new_date=new Date(Date.UTC(result[1],result[2]-1,result[3],result[4],result[5],parseInt(result[6])+time_offset));return new_date;}}
+SugarDateTime.parseUTCDate=SugarDateTime.prototype.parseUTCDate;SugarDateTime.prototype.parseAdjustedDate=function(date_string,dst_start,dst_end,gmt_offset_secs){var match=/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z/;dst_start_parse=match.exec(dst_start);dst_end_parse=match.exec(dst_end);if(dst_start_parse==null||dst_end_parse==null){var new_date=new Date(result[1],result[2]-1,result[3],result[4],result[5],parseInt(result[6]));new_date=new Date(new_date.getTime()+gmt_offset_secs*1000);}else{dst_start_obj=new Date(dst_start_parse[1],dst_start_parse[2]-1,dst_start_parse[3],dst_start_parse[4],dst_start_parse[5],parseInt(dst_start_parse[6]));dst_end_obj=new Date(dst_end_parse[1],dst_end_parse[2]-1,dst_end_parse[3],dst_end_parse[4],dst_end_parse[5],parseInt(dst_end_parse[6]));if(((result=match.exec(date_string)))!=null){var new_date=new Date(result[1],result[2]-1,result[3],result[4],result[5],parseInt(result[6]));var event_ts=new_date.getTime();var dst_start_ts=dst_start_obj.getTime();var dst_end_ts=dst_end_obj.getTime();if(((event_ts>=dst_start_ts||event_ts<dst_end_ts)&&dst_start_ts>dst_end_ts)||(event_ts>=dst_start_ts&&event_ts<dst_end_ts)){new_date=new Date(new_date.getTime()+60*60*1000);}
+new_date=new Date(new_date.getTime()+gmt_offset_secs*1000);}}
+return new_date;}
+SugarDateTime.parseAdjustedDate=SugarDateTime.prototype.parseAdjustedDate;SugarDateTime.prototype.getUTCHash=function(startdate){var month=(startdate.getUTCMonth()<10)?"0"+startdate.getUTCMonth():""+startdate.getUTCMonth();var day=(startdate.getUTCDate()<10)?"0"+startdate.getUTCDate():""+startdate.getUTCDate();var hours=(startdate.getUTCHours()<10)?"0"+startdate.getUTCHours():""+startdate.getUTCHours();var minutes=(startdate.getUTCMinutes()<10)?"0"+startdate.getUTCMinutes():""+startdate.getUTCMinutes();return startdate.getUTCFullYear()+month+day+hours+minutes;}
+SugarDateTime.getUTCHash=SugarDateTime.prototype.getUTCHash;
+// End of File include/javascript/jsclass_base.js
+                                
+/*********************************************************************************
+ * SugarCRM Community Edition is a customer relationship management program developed by
+ * SugarCRM, Inc. Copyright (C) 2004-2011 SugarCRM Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by the
+ * Free Software Foundation with the addition of the following permission added
+ * to Section 15 as permitted in Section 7(a): FOR ANY PART OF THE COVERED WORK
+ * IN WHICH THE COPYRIGHT IS OWNED BY SUGARCRM, SUGARCRM DISCLAIMS THE WARRANTY
+ * OF NON INFRINGEMENT OF THIRD PARTY RIGHTS.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along with
+ * this program; if not, see http://www.gnu.org/licenses or write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA.
+ *
+ * You can contact SugarCRM, Inc. headquarters at 10050 North Wolfe Road,
+ * SW2-130, Cupertino, CA 95014, USA. or at email address contact@sugarcrm.com.
+ *
+ * The interactive user interfaces in modified source and object code versions
+ * of this program must display Appropriate Legal Notices, as required under
+ * Section 5 of the GNU Affero General Public License version 3.
+ *
+ * In accordance with Section 7(b) of the GNU Affero General Public License version 3,
+ * these Appropriate Legal Notices must retain the display of the "Powered by
+ * SugarCRM" logo. If the display of the logo is not reasonably feasible for
+ * technical reasons, the Appropriate Legal Notices must display the words
+ * "Powered by SugarCRM".
+ ********************************************************************************/
+function method_callback(o){var resp=YAHOO.lang.JSON.parse(o.responseText),request_id=o.tId,result=resp.result;if(result==null){return;}
+reqid=global_request_registry[request_id];if(typeof(reqid)!='undefined'){widget=global_request_registry[request_id][0];method_name=global_request_registry[request_id][1];widget[method_name](result);}}
+SugarClass.inherit("SugarVCalClient","SugarClass");function SugarVCalClient(){this.init();}
+SugarVCalClient.prototype.init=function(){}
+SugarVCalClient.prototype.load=function(user_id,request_id){this.user_id=user_id;YAHOO.util.Connect.asyncRequest('GET','./vcal_server.php?type=vfb&source=outlook&user_id='+user_id,{success:function(result){if(typeof GLOBAL_REGISTRY.freebusy=='undefined'){GLOBAL_REGISTRY.freebusy=new Object();}
+if(typeof GLOBAL_REGISTRY.freebusy_adjusted=='undefined'){GLOBAL_REGISTRY.freebusy_adjusted=new Object();}
+GLOBAL_REGISTRY.freebusy[user_id]=SugarVCalClient.prototype.parseResults(result.responseText,false);GLOBAL_REGISTRY.freebusy_adjusted[user_id]=SugarVCalClient.prototype.parseResults(result.responseText,true);global_request_registry[request_id][0].display();},failure:function(result){this.success(result);},argument:{result:result}});}
+SugarVCalClient.prototype.parseResults=function(textResult,adjusted){var match=/FREEBUSY.*?\:([\w]+)\/([\w]+)/g;var result;var timehash=new Object();var dst_start;var dst_end;if(GLOBAL_REGISTRY.current_user.fields.dst_start==null)
+dst_start='19700101T000000Z';else
+dst_start=GLOBAL_REGISTRY.current_user.fields.dst_start.replace(/ /gi,'T').replace(/:/gi,'').replace(/-/gi,'')+'Z';if(GLOBAL_REGISTRY.current_user.fields.dst_end==null)
+dst_end='19700101T000000Z';else
+dst_end=GLOBAL_REGISTRY.current_user.fields.dst_end.replace(/ /gi,'T').replace(/:/gi,'').replace(/-/gi,'')+'Z';gmt_offset_secs=GLOBAL_REGISTRY.current_user.fields.gmt_offset*60;while(((result=match.exec(textResult)))!=null){var startdate;var enddate;if(adjusted){startdate=SugarDateTime.parseAdjustedDate(result[1],dst_start,dst_end,gmt_offset_secs);enddate=SugarDateTime.parseAdjustedDate(result[2],dst_start,dst_end,gmt_offset_secs);}
+else{startdate=SugarDateTime.parseUTCDate(result[1]);enddate=SugarDateTime.parseUTCDate(result[2]);}
+var startmins=startdate.getUTCMinutes();if(startmins>=0&&startmins<15){startdate.setUTCMinutes(0);}
+else if(startmins>=15&&startmins<30){startdate.setUTCMinutes(15);}
+else if(startmins>=30&&startmins<45){startdate.setUTCMinutes(30);}
+else{startdate.setUTCMinutes(45);}
+while(startdate.valueOf()<enddate.valueOf()){var hash=SugarDateTime.getUTCHash(startdate);if(typeof(timehash[hash])=='undefined'){timehash[hash]=0;}
+timehash[hash]+=1;startdate=new Date(startdate.valueOf()+(15*60*1000));}}
+return timehash;}
+SugarVCalClient.parseResults=SugarVCalClient.prototype.parseResults;SugarRPCClient.allowed_methods=['retrieve','query','save','set_accept_status','get_objects_from_module','email','get_user_array','get_full_list'];SugarClass.inherit("SugarRPCClient","SugarClass");function SugarRPCClient(){this.init();}
+SugarRPCClient.prototype.allowed_methods=['retrieve','query','get_objects_from_module'];SugarRPCClient.prototype.init=function(){this._showError=function(e){alert("ERROR CONNECTING to: ./index.php?entryPoint=json_server, ERROR:"+e);}
+this.serviceURL='./index.php?entryPoint=json_server';}
+SugarRPCClient.prototype.call_method=function(method,args,synchronous){var result,transaction,post_data=YAHOO.lang.JSON.stringify({method:method,id:1,params:[args]});synchronous=synchronous||false;try{if(synchronous){result=http_fetch_sync(this.serviceURL,post_data);result=YAHOO.lang.JSON.parse(result.responseText).result;return result;}else{transaction=YAHOO.util.Connect.asyncRequest('POST',this.serviceURL,{success:method_callback,failure:method_callback},post_data);return transaction.tId;}}catch(e){this._showError(e);}}
+var global_rpcClient=new SugarRPCClient();
+// End of File include/javascript/jsclass_async.js
+                                
+/*********************************************************************************
+ * SugarCRM Community Edition is a customer relationship management program developed by
+ * SugarCRM, Inc. Copyright (C) 2004-2011 SugarCRM Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by the
@@ -106,7 +231,7 @@ currentNode.name=new_name;currentNode.id=new_id;currentNode.value=values['name']
 if(hidden_count==radios.length){radios[0].parentNode.parentNode.parentNode.style.display='';}
 arrow.value='hide';}else{more_.src="index.php?entryPoint=getImage&themeName="+SUGAR.themes.theme_name+"&imageName=basic_search.gif";this.more_status=false;for(var k=0;k<radios.length;k++){if(isInteger(k)){radios[k].parentNode.parentNode.parentNode.style.display='';}}
 arrow.value='show';}
-var more_div=document.getElementById('more_div_'+this.field_element_name);if(more_div){more_div.innerHTML=arrow.value=='show'?SUGAR.language.get('app_strings','LBL_HIDE'):SUGAR.language.get('app_strings','LBL_SHOW');}}},create_clone:function(){var oneField=document.getElementById('lineFields_'+this.field_element_name+'_0');this.cloneField[0]=SUGAR.isIE?SUGAR.collection.safe_clone(oneField,true):oneField.cloneNode(true);this.cloneField[1]=oneField.parentNode;this.more_status=true;var clone_id=this.form+'_'+this.field+'_collection_0';if(typeof sqs_objects!='undefined'&&typeof sqs_objects[clone_id]!='undefined'){var clone=YAHOO.lang.JSON.stringify(sqs_objects[clone_id]);eval('this.sqs_clone='+clone);}},validateTemSet:function(formname,fieldname){var table_element_id=formname+'_'+fieldname+'_table';if(document.getElementById(table_element_id)){var input_elements=YAHOO.util.Selector.query('input[type=radio]',document.getElementById(table_element_id));var has_primary=false;var primary_field_id=fieldname+'_collection_0';for(t in input_elements){primary_field_id=fieldname+'_collection_'+input_elements[t].value;if(input_elements[t].type&&input_elements[t].type=='radio'&&input_elements[t].checked==true){if(document.forms[formname].elements[primary_field_id].value!=''){has_primary=true;}
+var more_div=document.getElementById('more_div_'+this.field_element_name);if(more_div){more_div.innerHTML=arrow.value=='show'?SUGAR.language.get('app_strings','LBL_HIDE'):SUGAR.language.get('app_strings','LBL_SHOW');}}},create_clone:function(){var oneField=document.getElementById('lineFields_'+this.field_element_name+'_0');this.cloneField[0]=SUGAR.isIE?SUGAR.collection.safe_clone(oneField,true):oneField.cloneNode(true);this.cloneField[1]=oneField.parentNode;var clone_id=this.form+'_'+this.field+'_collection_0';if(typeof sqs_objects!='undefined'&&typeof sqs_objects[clone_id]!='undefined'){var clone=YAHOO.lang.JSON.stringify(sqs_objects[clone_id]);eval('this.sqs_clone='+clone);}},validateTemSet:function(formname,fieldname){var table_element_id=formname+'_'+fieldname+'_table';if(document.getElementById(table_element_id)){var input_elements=YAHOO.util.Selector.query('input[type=radio]',document.getElementById(table_element_id));var has_primary=false;var primary_field_id=fieldname+'_collection_0';for(t in input_elements){primary_field_id=fieldname+'_collection_'+input_elements[t].value;if(input_elements[t].type&&input_elements[t].type=='radio'&&input_elements[t].checked==true){if(document.forms[formname].elements[primary_field_id].value!=''){has_primary=true;}
 break;}}
 if(!has_primary){return false;}
 return true;}
@@ -1726,8 +1851,14 @@ var callbackReplyForward = {
 		var t = tinyMCE.getInstanceById('htmleditor' + idx);
         try {
 			var html = t.getContent();
-
-            html = "&nbsp;<div><hr></div>" + a.description;
+			
+			if(typeof a.type != 'undefined' && a.type == 'draft'){
+				html = a.description;
+			}
+			else{
+				html = "&nbsp;<br><div><hr></div>" + a.description;
+			}
+            
 
 			t.setContent(html);//
 
@@ -3890,13 +4021,18 @@ SE.composeLayout = {
         if(json_objects['email_template_object']['fields']['subject'] != '' ) { // cn: bug 7743, don't stomp populated Subject Line
             document.getElementById('emailSubject' + idx).value = decodeURI(encodeURI(json_objects['email_template_object']['fields']['subject']));
         }
-
-        var text = decodeURI(encodeURI(json_objects['email_template_object']['fields']['body_html'])).replace(/<BR>/ig, '\n').replace(/<br>/gi, "\n").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"');
-
-        // cn: bug 14361 - text-only templates don't fill compose screen
-        if(text == '') {
-            text = decodeURI(encodeURI(json_objects['email_template_object']['fields']['body'])).replace(/<BR>/ig, '\n').replace(/<br>/gi, "\n").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"').replace(/\r\n/gi,"<br/>");
+        var text = '';
+        if(json_objects['email_template_object']['fields']['text_only'] == 1){
+        	text = "<p>" + decodeURI(encodeURI(json_objects['email_template_object']['fields']['body'])).replace(/<BR>/ig, '</p><p>').replace(/<br>/gi, "</p><p>").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"') + "</p>";
+        	document.getElementById("setEditor1").checked = true;
+        	SUGAR.email2.composeLayout.renderTinyMCEToolBar('1', 1);
         }
+        else{
+        	text = decodeURI(encodeURI(json_objects['email_template_object']['fields']['body_html'])).replace(/<BR>/ig, '\n').replace(/<br>/gi, "\n").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"');
+        	document.getElementById("setEditor1").checked = false;
+        	SUGAR.email2.composeLayout.renderTinyMCEToolBar('1', 0);
+        }
+               
 
         var tiny = SE.util.getTiny('htmleditor' + idx);
         var tinyHTML = tiny.getContent();
@@ -3927,7 +4063,7 @@ SE.composeLayout = {
 			return;
         }
 
-        if(idx) {
+        if(idx != null) {
             var sel = document.getElementById('signatures' + idx);
         } else {
             var sel = document.getElementById('signature_id');
@@ -4001,14 +4137,43 @@ SE.composeLayout = {
                 html = htmlPart1 + htmlPart2;
             }
 
-            // [pre|ap]pend
+            // pre|append
 			start = html.indexOf('<div><hr></div>');
             if(SE.userPrefs.signatures.signature_prepend == 'true' && start > -1) {
 				var htmlPart1 = html.substr(0, start);
 				var htmlPart2 = html.substr(start, html.length);
                 var newHtml = htmlPart1 + openTag + newSignature + closeTag + htmlPart2;
             } else if(SUGAR.email2.userPrefs.signatures.signature_prepend == 'true') {
-            	var newHtml = '<br/>' + openTag + newSignature + closeTag + html;
+
+            	//bug 48285
+                var newHtml = html;
+
+                //remove custom spacing
+                var spacing = '<span id="spacing"><br /><br /><br /></span>&nbsp;';
+                var customSpacingStart = html.indexOf(spacing);
+
+                if (customSpacingStart > -1)
+                {
+                    var part1 = newHtml.substr(0, customSpacingStart);
+                    var part2 = newHtml.substr(customSpacingStart+spacing.length, newHtml.length);
+                    newHtml = part1 + part2;
+                }
+
+                //append signature
+                var bodyStartTag = '<body>';
+                var body = newHtml.indexOf(bodyStartTag);
+
+                if (body > -1)
+                {
+                    var part1 = newHtml.substr(0, body+bodyStartTag.length);
+                    var part2 = newHtml.substr(body+bodyStartTag.length, newHtml.length);
+                    newHtml = part1 + spacing + openTag + newSignature + closeTag + part2;
+                }
+                else
+                {
+                    newHtml = openTag + newSignature + closeTag + newHtml;
+                }
+                //end bug 48285
             } else {
                 var body = html.indexOf('</body>');
                 if (body > -1) {
@@ -4499,9 +4664,30 @@ SE.composeLayout = {
         } // if
         //Flag determines if we should clear the tiny contents or just append
         if (typeof(composePackage.clearBody) != 'undefined' && composePackage.clearBody)
+        {
             SE.composeLayout.tinyHTML = '';
+        }
         else
-            SE.composeLayout.tinyHTML = tinyHTML + composePackage.body;
+        {
+            //bug 48179
+            //check tinyHTML for closing tags
+            var body = tinyHTML.lastIndexOf('</body>');
+            spacing = '<span id="spacing"><br /><br /><br /></span>&nbsp;';
+
+            if (body > -1)
+            {
+                var part1 = tinyHTML.substr(0, body);
+                var part2 = tinyHTML.substr(body, tinyHTML.length);
+                var newHtml = part1 + spacing + composePackage.body + part2;
+            }
+            else
+            {
+                var newHtml = tinyHTML + spacing + composePackage.body;
+            }
+            //end bug 48179
+
+            SE.composeLayout.tinyHTML = newHtml;
+        }
 
          tiny.setContent(SE.composeLayout.tinyHTML);
          //Indicate that the contents has been loaded successfully.

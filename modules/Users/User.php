@@ -844,7 +844,10 @@ EOQ;
 	function get_list_view_data() {
 
 		global $current_user;
-
+                
+                // Bug #48555 Not User Name Format of User's locale. 
+                $this->_create_proper_name_field();
+                
 		$user_fields = $this->get_list_view_array();
 		if ($this->is_admin)
 			$user_fields['IS_ADMIN_IMAGE'] = SugarThemeRegistry::current()->getImage('check_inline', '');
@@ -990,22 +993,17 @@ EOQ;
 		return $ret;
 	}
 
-	function getUsersNameAndEmail() {
-		$salutation = '';
-		$fullName = '';
-		if(!empty($this->salutation)) $salutation = $this->salutation;
+	function getUsersNameAndEmail() 
+	{
+	    // Bug #48555 Not User Name Format of User's locale. 
+	    $this->_create_proper_name_field();
 
-		if(!empty($this->first_name)) {
-			$fullName = trim($salutation.' '.$this->first_name.' '.$this->last_name);
-		} elseif(!empty($this->name)) {
-			$fullName = $this->name;
-		}
 		$prefAddr = $this->emailAddress->getPrimaryAddress($this);
 
 		if (empty ($prefAddr)) {
 			$prefAddr = $this->emailAddress->getReplyToAddress($this);
 		}
-		return array('email' => $prefAddr , 'name' => $fullName);
+		return array('email' => $prefAddr , 'name' => $this->name);
 
 	} // fn
 
@@ -1100,27 +1098,22 @@ EOQ;
 		}
 
 		if($client == 'sugar') {
-			$salutation = '';
-			$fullName = '';
 			$email = '';
 			$to_addrs_ids = '';
 			$to_addrs_names = '';
 			$to_addrs_emails = '';
-
-			if(!empty($focus->salutation)) $salutation = $focus->salutation;
-
-			if(!empty($focus->first_name)) {
-				$fullName = trim($salutation.' '.$focus->first_name.' '.$focus->last_name);
-			} elseif(!empty($focus->name)) {
-				$fullName = $focus->name;
-			}
+			
+            $fullName = !empty($focus->name) ? $focus->name : '';
 
 			if(empty($ret_module)) $ret_module = $focus->module_dir;
 			if(empty($ret_id)) $ret_id = $focus->id;
 			if($focus->object_name == 'Contact') {
 				$contact_id = $focus->id;
 				$to_addrs_ids = $focus->id;
-				$to_addrs_names = $fullName;
+				// Bug #48555 Not User Name Format of User's locale. 
+				$focus->_create_proper_name_field();
+			    $fullName = $focus->name;
+			    $to_addrs_names = $fullName;
 				$to_addrs_emails = $focus->email1;
 			}
 
@@ -1182,20 +1175,12 @@ EOQ;
 		}
 
 		if($client == 'sugar') {
-			$salutation = '';
-			$fullName = '';
 			$email = '';
 			$to_addrs_ids = '';
 			$to_addrs_names = '';
 			$to_addrs_emails = '';
+            $fullName = !empty($focus->name) ? $focus->name : '';
 
-			if(!empty($focus->salutation)) $salutation = $focus->salutation;
-
-			if(!empty($focus->first_name)) {
-				$fullName = trim($salutation.' '.$focus->first_name.' '.$focus->last_name);
-			} elseif(!empty($focus->name)) {
-				$fullName = $focus->name;
-			}
 			if(!empty($focus->$attribute)) {
 				$email = $focus->$attribute;
 			}
@@ -1204,7 +1189,10 @@ EOQ;
 			if(empty($ret_module)) $ret_module = $focus->module_dir;
 			if(empty($ret_id)) $ret_id = $focus->id;
 			if($focus->object_name == 'Contact') {
-				$contact_id = $focus->id;
+				// Bug #48555 Not User Name Format of User's locale. 
+				$focus->_create_proper_name_field();
+			    $fullName = $focus->name;
+			    $contact_id = $focus->id;
 				$to_addrs_ids = $focus->id;
 				$to_addrs_names = $fullName;
 				$to_addrs_emails = $focus->email1;
@@ -1501,4 +1489,26 @@ EOQ;
 
    }
 
+    // Bug #48014 Must to send password to imported user if this action is required
+    function afterImportSave()
+    {
+        if(
+            $this->user_hash == false
+            && !$this->is_group
+            && !$this->portal_only
+            && isset($GLOBALS['sugar_config']['passwordsetting']['SystemGeneratedPasswordON'])
+            && $GLOBALS['sugar_config']['passwordsetting']['SystemGeneratedPasswordON']
+        )
+        {
+            $backUpPost = $_POST;
+            $_POST = array(
+                'userId' => $this->id
+            );
+            ob_start();
+            require('modules/Users/GeneratePassword.php');
+            $result = ob_get_clean();
+            $_POST = $backUpPost;
+            return $result == true;
+        }
+    }
 }

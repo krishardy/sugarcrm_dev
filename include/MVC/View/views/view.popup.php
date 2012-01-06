@@ -155,7 +155,16 @@ class ViewPopup extends SugarView{
 			
 			$popup->setup('include/Popups/tpls/PopupGeneric.tpl');
 			
-            insert_popup_header();		
+            //We should at this point show the header and javascript even if to_pdf is true.
+            //The insert_popup_header javascript is incomplete and shouldn't be relied on.
+            if (isset($this->options['show_all']) && $this->options['show_all'] == false)
+            {
+                unset($this->options['show_all']);
+                $this->options['show_javascript'] = true;
+                $this->options['show_header'] = true;
+                $this->_displayJavascript();
+            }
+            insert_popup_header(null, false);
 			echo $popup->display();
 
 		}else{

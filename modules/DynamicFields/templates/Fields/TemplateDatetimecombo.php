@@ -122,7 +122,7 @@ class TemplateDatetimecombo extends TemplateRange
 	}       
     
 	function get_db_type(){
-	    if($GLOBALS['db']->dbType == 'oracle'){
+	    if($GLOBALS['db']->dbType == 'oci8'){
 	        return " DATE ";
 	    } else {
 	        return " DATETIME ";
@@ -135,7 +135,7 @@ class TemplateDatetimecombo extends TemplateRange
 
 	function get_field_def(){
 		$def = parent::get_field_def();
-		if($GLOBALS['db']->dbType == 'oracle'){
+		if($GLOBALS['db']->dbType == 'oci8'){
 	        $def['dbType'] = 'date';
 	    } else {
 	        $def['dbType'] = 'datetime';

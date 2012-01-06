@@ -172,7 +172,7 @@ class UndeployedMetaDataImplementation extends AbstractMetaDataImplementation im
         $type = strtolower ( $type ) ;
 
         // BEGIN ASSERTIONS
-        if ($type != MB_BASEMETADATALOCATION && $type != MB_HISTORYMETADATALOCATION)
+        if ($type != MB_BASEMETADATALOCATION && $type != MB_HISTORYMETADATALOCATION && $type != MB_WORKINGMETADATALOCATION)
         {
             // just warn rather than die
             $GLOBALS [ 'log' ]->warning ( "UndeployedMetaDataImplementation->getFileName(): view type $type is not recognized" ) ;

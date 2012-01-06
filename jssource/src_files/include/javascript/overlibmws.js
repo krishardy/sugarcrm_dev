@@ -667,9 +667,25 @@ if(OLprintPI)over.print=o3_print?t:null;
 
 // Makes object visible
 function OLshowObject(o){
-OLshowid=0;o=(OLns4)?o:o.style;
-if(((OLfilterPI)&&!OLchkFilter(o))||!OLfilterPI)o.visibility="visible";
-if(OLshadowPI)OLshowShadow();if(OLiframePI)OLshowIfs();if(OLhidePI)OLhideUtil(1,1,0);
+    OLshowid=0;o=(OLns4)?o:o.style;
+    if (((OLfilterPI)&&!OLchkFilter(o))||!OLfilterPI)
+    {
+        o.visibility="visible";
+        // Bug #47099 We need to initialize close function from start
+        nd(2000);
+    }
+    if (OLshadowPI)
+    {
+        OLshowShadow();
+    }
+    if (OLiframePI)
+    {
+        OLshowIfs();
+    }
+    if (OLhidePI)
+    {
+        OLhideUtil(1,1,0);
+    }
 }
 
 // Hides object

@@ -305,6 +305,14 @@ class ListLayoutMetaDataParser extends AbstractMetaDataParser implements MetaDat
 						continue ;
 
 	                $newViewdefs [ $fieldname ] = $this->_trimFieldDefs($this->_fielddefs [ $fieldname ]) ;
+                    
+                    // fixing bug #25640: Value of "Relate" custom field is not displayed as a link in list view
+                    // we should set additional params such as 'link' and 'id' to be stored in custom listviewdefs.php
+                    if (isset($this->_fielddefs[$fieldname]['type']) && $this->_fielddefs[$fieldname]['type'] == 'relate')
+                    {
+                        $newViewdefs[$fieldname]['id'] = strtoupper($this->_fielddefs[$fieldname]['id_name']);
+                        $newViewdefs[$fieldname]['link'] = true;
+                    }
                     // sorting fields of certain types will cause a database engine problems
 	                if ( isset($this->_fielddefs[$fieldname]['type']) &&
 	                		isset ( $rejectTypes [ $this->_fielddefs [ $fieldname ] [ 'type' ] ] ))

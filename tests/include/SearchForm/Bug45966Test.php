@@ -51,7 +51,9 @@ class Bug45966 extends Sugar_PHPUnit_Framework_TestCase {
     var $array;
 
     public function setUp() {
-        global $beanList;
+        require('include/modules.php');
+	    $GLOBALS['beanList'] = $beanList;
+	    $GLOBALS['beanFiles'] = $beanFiles;
 
         require "modules/".$this->module."/metadata/searchdefs.php";
         require "modules/".$this->module."/metadata/SearchFields.php";

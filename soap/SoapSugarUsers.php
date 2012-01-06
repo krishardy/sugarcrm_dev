@@ -1968,7 +1968,7 @@ function set_entries_details($session, $module_name, $name_value_lists, $select_
 
 // INTERNAL FUNCTION NOT EXPOSED THROUGH API
 function handle_set_entries($module_name, $name_value_lists, $select_fields = FALSE) {
-	global $beanList, $beanFiles, $app_list_strings;
+    global $beanList, $beanFiles, $app_list_strings, $current_user;
 
 	$error = new SoapError();
 	$ret_values = array();
@@ -1977,8 +1977,9 @@ function handle_set_entries($module_name, $name_value_lists, $select_fields = FA
 		$error->set_error('no_module');
 		return array('ids'=>array(), 'error'=>$error->get_soap_array());
 	}
-	global $current_user;
-	if(!check_modules_access($current_user, $module_name, 'write')){
+
+	if(!check_modules_access($current_user, $module_name, 'write'))
+    {
 		$error->set_error('no_access');
 		return array('ids'=>-1, 'error'=>$error->get_soap_array());
 	}
@@ -1988,75 +1989,109 @@ function handle_set_entries($module_name, $name_value_lists, $select_fields = FA
 	$ids = array();
 	$count = 1;
 	$total = sizeof($name_value_lists);
+
 	foreach($name_value_lists as $name_value_list){
 		$seed = new $class_name();
 
 		$seed->update_vcal = false;
-		foreach($name_value_list as $value){
-			if($value['name'] == 'id'){
+
+        //See if we can retrieve the seed by a given id value
+        foreach($name_value_list as $value)
+        {
+            if($value['name'] == 'id')
+            {
 				$seed->retrieve($value['value']);
 				break;
 			}
 		}
 
-		foreach($name_value_list as $value) {
+        $dataValues = array();
+        foreach($name_value_list as $value)
+        {
 			$val = $value['value'];
-			if($seed->field_name_map[$value['name']]['type'] == 'enum' ||$seed->field_name_map[$value['name']]['type'] == 'radioenum'){
+            if($seed->field_name_map[$value['name']]['type'] == 'enum' || $seed->field_name_map[$value['name']]['type'] == 'radioenum')
+            {
 				$vardef = $seed->field_name_map[$value['name']];
-				if(isset($app_list_strings[$vardef['options']]) && !isset($app_list_strings[$vardef['options']][$value]) ) {
-		            if ( in_array($val,$app_list_strings[$vardef['options']]) ){
+                if(isset($app_list_strings[$vardef['options']]) && !isset($app_list_strings[$vardef['options']][$val]) )
+                {
+                    if ( in_array($val,$app_list_strings[$vardef['options']]) )
+                    {
 		                $val = array_search($val,$app_list_strings[$vardef['options']]);
 		            }
 		        }
+
 			} else if($seed->field_name_map[$value['name']]['type'] == 'multienum') {
-				$vardef = $seed->field_name_map[$value['name']];
-				if(isset($app_list_strings[$vardef['options']]) && !isset($app_list_strings[$vardef['options']][$value]) ) {
+                $vardef = $seed->field_name_map[$value['name']];
+
+                if(isset($app_list_strings[$vardef['options']]) && !isset($app_list_strings[$vardef['options']][$value]) )
+                {
 					$items = explode(",", $val);
 					$parsedItems = array();
-					foreach ($items as $item) {
-						if ( in_array($item, $app_list_strings[$vardef['options']]) ){
+                    foreach ($items as $item)
+                    {
+                        if ( in_array($item, $app_list_strings[$vardef['options']]) )
+                        {
 							$keyVal = array_search($item,$app_list_strings[$vardef['options']]);
 							array_push($parsedItems, $keyVal);
 						}
 					}
-		           	if (!empty($parsedItems)) {
+                    if (!empty($parsedItems))
+                    {
 						$val = encodeMultienumValue($parsedItems);
 		           	}
 		        }
 			}
-			$seed->$value['name'] = $val;
+
+            //Apply the non-empty values now since this will be used for duplicate checks
+            if(!empty($val))
+            {
+                $seed->$value['name'] = $val;
+            }
+            //Store all the values in dataValues Array to apply later
+            $dataValues[$value['name']] = $val;
 		}
 
-		if($count == $total){
-			$seed->update_vcal = false;
+        if($count == $total)
+        {
+            $seed->update_vcal = false;
 		}
 		$count++;
 
 		//Add the account to a contact
 		if($module_name == 'Contacts'){
-			$GLOBALS['log']->debug('Creating Contact Account');
+
 			add_create_account($seed);
 			$duplicate_id = check_for_duplicate_contacts($seed);
-			if($duplicate_id == null){
-				if($seed->ACLAccess('Save') && ($seed->deleted != 1 || $seed->ACLAccess('Delete'))){
+            if($duplicate_id == null)
+            {
+                if($seed->ACLAccess('Save') && ($seed->deleted != 1 || $seed->ACLAccess('Delete')))
+                {
+                    //Now apply the values, since this is not a duplicate we can just pass false for the $firstSync argument
+                    apply_values($seed, $dataValues, false);
 					$seed->save();
 					if($seed->deleted == 1){
 						$seed->mark_deleted($seed->id);
 					}
 					$ids[] = $seed->id;
 				}
-			}
-			else{
+			} else {
 				//since we found a duplicate we should set the sync flag
-				if( $seed->ACLAccess('Save')){
-					$seed->id = $duplicate_id;
+                if( $seed->ACLAccess('Save'))
+                {
+                    //Determine if this is a first time sync.  We find out based on whether or not a contacts_users relationship exists
+                    $seed->id = $duplicate_id;
+                    $seed->load_relationship("user_sync");
+                    $beans = $seed->user_sync->getBeans();
+                    $first_sync = empty($beans);
+
+                    //Now apply the values and indicate whether or not this is a first time sync
+                    apply_values($seed, $dataValues, $first_sync);
 					$seed->contacts_users_id = $current_user->id;
 					$seed->save();
 					$ids[] = $duplicate_id;//we have a conflict
 				}
 			}
-		}
-		else if($module_name == 'Meetings' || $module_name == 'Calls'){
+		} else if($module_name == 'Meetings' || $module_name == 'Calls') {
 			//we are going to check if we have a meeting in the system
 			//with the same outlook_id. If we do find one then we will grab that
 			//id and save it
@@ -2094,9 +2129,7 @@ function handle_set_entries($module_name, $name_value_lists, $select_fields = FA
 				$seed->save();
 				$ids[] = $seed->id;
 			}//fi
-		}
-		else
-		{
+		} else {
 			if( $seed->ACLAccess('Save') && ($seed->deleted != 1 || $seed->ACLAccess('Delete'))){
 				$seed->save();
 				$ids[] = $seed->id;

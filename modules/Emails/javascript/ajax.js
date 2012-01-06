@@ -1491,8 +1491,14 @@ var callbackReplyForward = {
 		var t = tinyMCE.getInstanceById('htmleditor' + idx);
         try {
 			var html = t.getContent();
-
-            html = "&nbsp;<div><hr></div>" + a.description;
+			
+			if(typeof a.type != 'undefined' && a.type == 'draft'){
+				html = a.description;
+			}
+			else{
+				html = "&nbsp;<br><div><hr></div>" + a.description;
+			}
+            
 
 			t.setContent(html);//
 

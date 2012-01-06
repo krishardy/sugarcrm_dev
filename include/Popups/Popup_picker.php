@@ -158,7 +158,7 @@ EOQ;
 			}
 
 			$createButton = <<<EOQ
-			<input type="button" name="showAdd" class="button" value="{$this->_popupMeta['create']['createButton']}" onclick="toggleDisplay('addform');" />
+			<input type="button" id="showAdd" name="showAdd" class="button" value="{$this->_popupMeta['create']['createButton']}" onclick="toggleDisplay('addform');" />
 EOQ;
 			$addformheader = get_form_header($this->_popupMeta['create']['createButton'], $formSave, false);
 		}

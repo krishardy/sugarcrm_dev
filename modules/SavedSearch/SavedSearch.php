@@ -98,7 +98,7 @@ class SavedSearch extends SugarBean {
 	    $result = $db->query($query, true, "Error filling in saved search list: ");
 		
 		$savedSearchArray['_none'] = $app_strings['LBL_NONE'];
-	    while ($row = $db->fetchByAssoc($result)) {
+	    while ($row = $db->fetchByAssoc($result, -1, FALSE)) {
 	        $savedSearchArray[$row['id']] = htmlspecialchars($row['name'], ENT_QUOTES);
 	    }
 		$sugarSmarty = new Sugar_Smarty();
@@ -187,8 +187,8 @@ class SavedSearch extends SugarBean {
         $result = $db->query($query, true, "Error filling in saved search list: ");
         
         $savedSearchArray['_none'] = $app_strings['LBL_NONE'];
-        while ($row = $db->fetchByAssoc($result)) {
-            $savedSearchArray[$row['id']] = htmlspecialchars($row['name']);
+        while ($row = $db->fetchByAssoc($result, -1, FALSE)) {
+            $savedSearchArray[$row['id']] = htmlspecialchars($row['name'], ENT_QUOTES);
         }
 
         $sugarSmarty = new Sugar_Smarty();

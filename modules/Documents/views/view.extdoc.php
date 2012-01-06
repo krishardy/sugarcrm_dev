@@ -165,7 +165,7 @@ class DocumentsViewExtdoc extends SugarView
             // Need the popup header... I feel so dirty.
             ob_start();
             echo('<div class="dccontent">');
-            insert_popup_header($GLOBALS['theme']);
+            insert_popup_header($GLOBALS['theme'], false);
             $output_html = ob_get_contents();
             ob_end_clean();
             

@@ -61,7 +61,7 @@ if(!empty($license->settings['license_latest_versions'])){
 	include('sugar_version.php');
 	if(!empty($versions)){
 		foreach($versions as $version){
-			if($version['version'] > $sugar_version )
+			if(compareVersions($version['version'], $sugar_version))
 			{
 				$admin_option_defs['Administration']['update'][] ='red';
 				if(!isset($admin_option_defs['Administration']['update']['additional_label']))$admin_option_defs['Administration']['update']['additional_label']= '('.$version['version'].')';

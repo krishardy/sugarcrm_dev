@@ -270,7 +270,8 @@ function check_now($send_usage_info=true, $get_request_data=false, $response_dat
 
 	include('sugar_version.php');
 
-	if(sizeof($resultData) == 1 && !empty($resultData['versions'][0]['version']) &&  $resultData['versions'][0]['version'] < $sugar_version)
+	if(sizeof($resultData) == 1 && !empty($resultData['versions'][0]['version'])
+        && compareVersions($sugar_version, $resultData['versions'][0]['version']))
 	{
 		$resultData['versions'][0]['version'] = $sugar_version;
 		$resultData['versions'][0]['description'] = "You have the latest version.";
@@ -278,6 +279,27 @@ function check_now($send_usage_info=true, $get_request_data=false, $response_dat
 
 
 	return $resultData['versions'];
+}
+/*
+ * returns true if $ver1 > $ver2
+ */
+function compareVersions($ver1, $ver2)
+{
+    $ver_arr_1 = preg_split("/[^0-9]/", $ver1); 
+    $ver_arr_2 = preg_split("/[^0-9]/", $ver2); 
+    $count = (count($ver_arr_1) >= count($ver_arr_2)) ? count($ver_arr_1) : count($ver_arr_2);
+    for ($i = 0; $i < $count; $i++)
+    {
+        if (!isset($ver_arr_1[$i]))
+            $ver_arr_1[$i] = 0;
+        
+        if (!isset($ver_arr_2[$i]))
+            $ver_arr_2[$i] = 0;
+        
+        if ($ver_arr_1[$i] > $ver_arr_2[$i])
+            return true;
+    }
+    return false;
 }
 function set_CheckUpdates_config_setting($value) {
 

@@ -37,6 +37,11 @@
 
 
 function loadSugarChart (chartId,jsonFilename,css,chartConfig,pageCols) {
+
+                //Bug#45831
+                if(document.getElementById(chartId) == null) {
+                    return false;
+                }
 				var labelType, useGradients, nativeTextSupport, animate;		    	
 				(function() {
 				  var ua = navigator.userAgent,

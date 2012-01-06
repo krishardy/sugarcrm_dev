@@ -655,14 +655,27 @@ class Call extends SugarBean
 
 	function save_relationship_changes($is_update) {
 		$exclude = array();
-		if(empty($this->in_workflow)) {
-           //if the global soap_server_object variable is not empty (as in from a soap/OPI call), then process the assigned_user_id relationship, otherwise
-           //add assigned_user_id to exclude list and let the logic from MeetingFormBase determine whether assigned user id gets added to the relationship
-           	if(!empty($GLOBALS['soap_server_object'])){
-           		$exclude = array('lead_id', 'contact_id', 'user_id');
-           	}else{
-	            $exclude = array('lead_id', 'contact_id', 'user_id', 'assigned_user_id');
-           	}
+		if(empty($this->in_workflow))
+        {
+            if(empty($this->in_import))
+            {
+                //if the global soap_server_object variable is not empty (as in from a soap/OPI call), then process the assigned_user_id relationship, otherwise
+                //add assigned_user_id to exclude list and let the logic from MeetingFormBase determine whether assigned user id gets added to the relationship
+                if(!empty($GLOBALS['soap_server_object']))
+                {
+           		    $exclude = array('lead_id', 'contact_id', 'user_id');
+           	    }
+                else
+                {
+	                $exclude = array('lead_id', 'contact_id', 'user_id', 'assigned_user_id');
+           	    }
+            }
+            else
+            {
+                $exclude = array('user_id');
+            }
+
+
         }
 		parent::save_relationship_changes($is_update, $exclude);
 	}

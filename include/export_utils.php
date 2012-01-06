@@ -363,10 +363,20 @@ function generateSearchWhere($module, $query) {//this function is similar with f
             require_once('modules/'.$module.'/metadata/searchdefs.php');
         }
 
-        if(!empty($metafiles[$module]['searchfields']))
+        //fixing bug #48483: Date Range search on custom date field then export ignores range filter
+        // first of all custom folder should be checked
+        if(file_exists('custom/modules/'.$module.'/metadata/SearchFields.php'))
+        {
+            require_once('custom/modules/'.$module.'/metadata/SearchFields.php');
+        }
+        elseif(!empty($metafiles[$module]['searchfields']))
+        {
             require_once($metafiles[$module]['searchfields']);
+        }
         elseif(file_exists('modules/'.$module.'/metadata/SearchFields.php'))
+        {
             require_once('modules/'.$module.'/metadata/SearchFields.php');
+        }
         if(empty($searchdefs) || empty($searchFields)) {
            //for some modules, such as iframe, it has massupdate, but it doesn't have search function, the where sql should be empty.
             return;

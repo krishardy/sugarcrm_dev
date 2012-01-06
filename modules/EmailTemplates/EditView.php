@@ -245,6 +245,7 @@ if(true) {
         $tiny = new SugarTinyMCE();
         $tiny->defaultConfig['cleanup_on_startup']=true;
         $tiny->defaultConfig['height']=600;
+        $tiny->defaultConfig['plugins'].=",fullpage";
         $tinyHtml = $tiny->getInstance();
         $xtpl->assign("tiny", $tinyHtml);
 	}

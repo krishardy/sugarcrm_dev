@@ -49,11 +49,10 @@ class Bug47572Test extends Sugar_PHPUnit_Framework_TestCase
         $viewClass = 'ViewDetail';
         $type = 'detail';
 
+        $_REQUEST['print'] = true;
         $view = new $viewClass();
         $view->module = 'Cases';
         ViewFactory::_loadConfig($view, $type);
-
-        $_REQUEST['print'] = true;
         $view->preDisplay();
 
         $this->assertFalse($view->options['show_subpanels'], 'show_subpanels should be false for print');

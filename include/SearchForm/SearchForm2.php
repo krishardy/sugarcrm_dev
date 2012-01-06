@@ -327,65 +327,75 @@ require_once('include/EditView/EditView2.php');
             }
 
 	        foreach($this->seed->toArray() as $name => $value) {
-	            if(!empty($this->fieldDefs[$name.'_'.$this->parsedView]))
-	            	$this->fieldDefs[$name.'_'.$this->parsedView] = array_merge($this->seed->field_defs[$name], $this->fieldDefs[$name.'_'.$this->parsedView]);
+	            $fvName = $name.'_'.$this->parsedView;
+                if(!empty($this->fieldDefs[$fvName]))
+	            	$this->fieldDefs[$fvName] = array_merge($this->seed->field_defs[$name], $this->fieldDefs[$fvName]);
 	            else{
-	            	$this->fieldDefs[$name.'_'.$this->parsedView] = $this->seed->field_defs[$name];
-	            	$this->fieldDefs[$name.'_'.$this->parsedView]['name'] = $this->fieldDefs[$name.'_'.$this->parsedView]['name'].'_'.$this->parsedView;
+	            	$this->fieldDefs[$fvName] = $this->seed->field_defs[$name];
+	            	$this->fieldDefs[$fvName]['name'] = $this->fieldDefs[$fvName]['name'].'_'.$this->parsedView;
 	            }
 
-	            if(isset($this->fieldDefs[$name.'_'.$this->parsedView]['type']) && $this->fieldDefs[$name.'_'.$this->parsedView]['type'] == 'relate') {
-	                if(isset($this->fieldDefs[$name.'_'.$this->parsedView]['id_name'])) {
-	                   $this->fieldDefs[$name.'_'.$this->parsedView]['id_name'] .= '_'.$this->parsedView;
+	            if(isset($this->fieldDefs[$fvName]['type']) && $this->fieldDefs[$fvName]['type'] == 'relate') {
+	                if(isset($this->fieldDefs[$fvName]['id_name'])) {
+	                   $this->fieldDefs[$fvName]['id_name'] .= '_'.$this->parsedView;
 	                }
 	            }
 
-	            if(isset($this->fieldDefs[$name.'_'.$this->parsedView]['options']) && isset($GLOBALS['app_list_strings'][$this->fieldDefs[$name.'_'.$this->parsedView]['options']])) {
-	                $this->fieldDefs[$name.'_'.$this->parsedView]['options'] = $GLOBALS['app_list_strings'][$this->fieldDefs[$name.'_'.$this->parsedView]['options']]; // fill in enums
+	            if(isset($this->fieldDefs[$fvName]['options']) && isset($GLOBALS['app_list_strings'][$this->fieldDefs[$fvName]['options']]))
+                {
+	                // fill in enums
+                    $this->fieldDefs[$fvName]['options'] = $GLOBALS['app_list_strings'][$this->fieldDefs[$fvName]['options']];
+                    //Hack to add blanks for parent types on search views
+                    if ($this->fieldDefs[$fvName]['type'] == "parent_type" || $this->fieldDefs[$fvName]['type'] == "parent")
+                    {
+                        $this->fieldDefs[$fvName]['options'] = array_merge(array(""=>""), $this->fieldDefs[$fvName]['options']);
+                    }
 	            }
 
-	            if(isset($this->fieldDefs[$name.'_'.$this->parsedView]['function'])) {
+	            if(isset($this->fieldDefs[$fvName]['function'])) {
 
-	            	$this->fieldDefs[$name.'_'.$this->parsedView]['type']='multienum';
+	            	$this->fieldDefs[$fvName]['type']='multienum';
 
-	       	 		if(is_array($this->fieldDefs[$name.'_'.$this->parsedView]['function'])) {
-	       	 		   $this->fieldDefs[$name.'_'.$this->parsedView]['function']['preserveFunctionValue']=true;
+	       	 		if(is_array($this->fieldDefs[$fvName]['function'])) {
+	       	 		   $this->fieldDefs[$fvName]['function']['preserveFunctionValue']=true;
 	       	 		}
 
-	       	 		$function = $this->fieldDefs[$name.'_'.$this->parsedView]['function'];
+	       	 		$function = $this->fieldDefs[$fvName]['function'];
 
 	       			if(is_array($function) && isset($function['name'])){
-	       				$function_name = $this->fieldDefs[$name.'_'.$this->parsedView]['function']['name'];
+	       				$function_name = $this->fieldDefs[$fvName]['function']['name'];
 	       			}else{
-	       				$function_name = $this->fieldDefs[$name.'_'.$this->parsedView]['function'];
+	       				$function_name = $this->fieldDefs[$fvName]['function'];
 	       			}
 
-					if(!empty($this->fieldDefs[$name.'_'.$this->parsedView]['function']['returns']) && $this->fieldDefs[$name.'_'.$this->parsedView]['function']['returns'] == 'html'){
-						if(!empty($this->fieldDefs[$name.'_'.$this->parsedView]['function']['include'])){
-								require_once($this->fieldDefs[$name.'_'.$this->parsedView]['function']['include']);
+					if(!empty($this->fieldDefs[$fvName]['function']['returns']) && $this->fieldDefs[$fvName]['function']['returns'] == 'html'){
+						if(!empty($this->fieldDefs[$fvName]['function']['include'])){
+								require_once($this->fieldDefs[$fvName]['function']['include']);
 						}
 						$value = $function_name($this->seed, $name, $value, $this->view);
-						$this->fieldDefs[$name.'_'.$this->parsedView]['value'] = $value;
+						$this->fieldDefs[$fvName]['value'] = $value;
 					}else{
 						if(!isset($function['params']) || !is_array($function['params'])) {
-							$this->fieldDefs[$name.'_'.$this->parsedView]['options'] = $function_name($this->seed, $name, $value, $this->view);
+							$this->fieldDefs[$fvName]['options'] = $function_name($this->seed, $name, $value, $this->view);
 						} else {
-							$this->fieldDefs[$name.'_'.$this->parsedView]['options'] = call_user_func_array($function_name, $function['params']);
+							$this->fieldDefs[$fvName]['options'] = call_user_func_array($function_name, $function['params']);
 						}
 					}
 	       	 	}
-	       	 	if(isset($this->fieldDefs[$name]['type']) && $this->fieldDefs[$name.'_'.$this->parsedView]['type'] == 'function' && isset($this->fieldDefs[$name.'_'.$this->parsedView]['function_name'])){
-	       	 		$value = $this->callFunction($this->fieldDefs[$name.'_'.$this->parsedView]);
-	       	 		$this->fieldDefs[$name.'_'.$this->parsedView]['value'] = $value;
+	       	 	if(isset($this->fieldDefs[$name]['type']) && $this->fieldDefs[$fvName]['type'] == 'function'
+                       && isset($this->fieldDefs[$fvName]['function_name']))
+                {
+	       	 		$value = $this->callFunction($this->fieldDefs[$fvName]);
+	       	 		$this->fieldDefs[$fvName]['value'] = $value;
 	       	 	}
 
 	            $this->fieldDefs[$name]['value'] = $value;
 
 
-	            if((!empty($_REQUEST[$name.'_'.$this->parsedView]) || (isset($_REQUEST[$name.'_'.$this->parsedView]) && $_REQUEST[$name.'_'.$this->parsedView] == '0'))
-                && empty($this->fieldDefs[$name.'_'.$this->parsedView]['function']['preserveFunctionValue'])) {
-	            	$value = $_REQUEST[$name.'_'.$this->parsedView];
-	            	$this->fieldDefs[$name.'_'.$this->parsedView]['value'] = $value;
+	            if((!empty($_REQUEST[$fvName]) || (isset($_REQUEST[$fvName]) && $_REQUEST[$fvName] == '0'))
+                && empty($this->fieldDefs[$fvName]['function']['preserveFunctionValue'])) {
+	            	$value = $_REQUEST[$fvName];
+	            	$this->fieldDefs[$fvName]['value'] = $value;
 	            }
 
 	        } //foreach
@@ -569,11 +579,14 @@ require_once('include/EditView/EditView2.php');
 					}
 				} else if (preg_match('/^range_(.*?)$/', $field, $match) && isset($this->searchFields[$field]['value'])) {
 					$real_field = $match[1];
-					
+
 					//Special case for datetime and datetimecombo fields.  By setting the type here we allow an actual between search
 					if($parms['operator'] == '=')
 					{
-					   $field_type = isset($this->seed->field_name_map[$real_field]['type']) ? $this->seed->field_name_map[$real_field]['type'] : '';					
+					   $field_type = isset($this->seed->field_name_map[$real_field]['type']) ? $this->seed->field_name_map[$real_field]['type'] : '';
+                       if(strtolower($field_type) == 'readonly' && isset($this->seed->field_name_map[$real_field]['dbType']))
+                           $field_type = $this->seed->field_name_map[$real_field]['dbType'];
+                        
 					   if($field_type == 'datetimecombo' || $field_type == 'datetime' || $field_type == 'int')
 					   {
 					   	  $type = $field_type;

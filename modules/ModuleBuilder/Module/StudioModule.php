@@ -296,10 +296,11 @@ class StudioModule
                 if ($name == 'users')
                     continue ;
                 $subname = sugar_ucfirst ( (! empty ( $label )) ? translate ( $label, $this->module ) : $name ) ;
+                $action = "module=ModuleBuilder&action=editLayout&view=ListView&view_module={$this->module}&subpanel={$name}&subpanelLabel=" . urlencode($subname);
                 $nodes [ $subname ] = array ( 
                 	'name' => $name , 
                 	'label' => $subname , 
-                	'action' => "module=ModuleBuilder&action=editLayout&view=ListView&view_module={$this->module}&subpanel={$name}&subpanelLabel={$subname}" , 
+                	'action' =>  $action,
                 	'imageTitle' => $subname , 
                 	'imageName' => 'icon_' . ucfirst($name) . '_32', 
                 	'altImageName' => 'Subpanels', 

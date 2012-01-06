@@ -127,9 +127,20 @@ class ViewConvertLead extends SugarView
 
         echo "<div class='edit view' style='width:auto;'>";
 
-        global $sugar_config, $app_list_strings;
+        global $sugar_config, $app_list_strings, $app_strings;
         $smarty->assign('lead_conv_activity_opt', $sugar_config['lead_conv_activity_opt']);
-        $smarty->assign('convertModuleListOptions', get_select_options_with_id(array('Contacts' => $app_list_strings["moduleListSingular"]['Contacts']), ''));
+        
+        //Switch up list depending on copy or move
+        if($sugar_config['lead_conv_activity_opt'] == 'move')
+        {
+        	$smarty->assign('convertModuleListOptions', get_select_options_with_id(array('None'=>$app_strings['LBL_NONE'], 'Contacts' => $app_list_strings["moduleListSingular"]['Contacts']), ''));	
+        }
+        else if($sugar_config['lead_conv_activity_opt'] == 'copy')
+        {
+        	$smarty->assign('convertModuleListOptions', get_select_options_with_id(array('Contacts' => $app_list_strings["moduleListSingular"]['Contacts']), ''));
+        }
+        
+        
 
         foreach($this->defs as $module => $vdef)
         {
@@ -535,6 +546,7 @@ class ViewConvertLead extends SugarView
     {
     	global $app_list_strings;
         global $sugar_config;
+        global $app_strings;
     	$parent_types = $app_list_strings['record_type_display'];
 
     	$activities = $this->getActivitiesFromLead($lead);
@@ -548,28 +560,31 @@ class ViewConvertLead extends SugarView
                     $bean->id = create_guid();
 		            $bean->new_with_id = true;
                 }
-                foreach($activities as $activity)
-		    	{
-                            if (!isset($sugar_config['lead_conv_activity_opt']) || $sugar_config['lead_conv_activity_opt'] == 'copy') {
-                                if (isset($_POST['lead_conv_ac_op_sel'])) {
-                                    //if the copy to module(s) are defined, copy only to those module(s)
-                                    if (is_array($_POST['lead_conv_ac_op_sel'])) {
-                                        foreach ($_POST['lead_conv_ac_op_sel'] as $mod) {
-                                            if ($mod == $module) {
-                                                $this->copyActivityAndRelateToBean($activity, $bean);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else if ($sugar_config['lead_conv_activity_opt'] == 'move') {
-                                // if to move activities, should be only one module selected
-                                if ($_POST['lead_conv_ac_op_sel'] == $module) {
-                                    $this->moveActivity($activity, $bean);
-                                }
-                            }
-		    	}
+                if( isset($_POST['lead_conv_ac_op_sel']) && $_POST['lead_conv_ac_op_sel'] != $app_strings['LBL_NONE'])
+                {
+	                foreach($activities as $activity)
+			    	{
+	                            if (!isset($sugar_config['lead_conv_activity_opt']) || $sugar_config['lead_conv_activity_opt'] == 'copy') {
+	                                if (isset($_POST['lead_conv_ac_op_sel'])) {
+	                                    //if the copy to module(s) are defined, copy only to those module(s)
+	                                    if (is_array($_POST['lead_conv_ac_op_sel'])) {
+	                                        foreach ($_POST['lead_conv_ac_op_sel'] as $mod) {
+	                                            if ($mod == $module) {
+	                                                $this->copyActivityAndRelateToBean($activity, $bean);
+	                                                break;
+	                                            }
+	                                        }
+	                                    }
+	                                }
+	                            }
+	                            else if ($sugar_config['lead_conv_activity_opt'] == 'move') {
+	                                // if to move activities, should be only one module selected
+	                                if ($_POST['lead_conv_ac_op_sel'] == $module) {
+	                                    $this->moveActivity($activity, $bean);
+	                                }
+	                            }
+			    	}
+                }
 	    	}
     	}
     }

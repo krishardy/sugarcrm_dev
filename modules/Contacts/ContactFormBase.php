@@ -571,7 +571,7 @@ function handleSave($prefix, $redirect=true, $useRequired=false){
 	} else {
 
         $focus = populateFromPost($prefix, $focus);
-        if(!empty($focus->portal_password) && $focus->portal_password != $_POST[$prefix.'old_portal_password']){
+        if( isset($_POST[$prefix.'old_portal_password']) && !empty($focus->portal_password) && $focus->portal_password != $_POST[$prefix.'old_portal_password']){
             $focus->portal_password = md5($focus->portal_password);
         }
 		if (!isset($_POST[$prefix.'email_opt_out'])) $focus->email_opt_out = 0;
@@ -699,7 +699,7 @@ function handleSave($prefix, $redirect=true, $useRequired=false){
 	}
 
 	global $current_user;
-	if(is_admin($current_user)){
+	if(is_admin($current_user) && isset($_POST[$prefix.'portal_name_verified'])){
 		if (!isset($_POST[$prefix.'portal_active'])) $focus->portal_active = '0';
 		//if no password is set set account to inactive for portal
 		if(empty($_POST[$prefix.'portal_name']))$focus->portal_active = '0';

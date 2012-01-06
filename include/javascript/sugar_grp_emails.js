@@ -281,7 +281,7 @@ currentNode.name=new_name;currentNode.id=new_id;currentNode.value=values['name']
 if(hidden_count==radios.length){radios[0].parentNode.parentNode.parentNode.style.display='';}
 arrow.value='hide';}else{more_.src="index.php?entryPoint=getImage&themeName="+SUGAR.themes.theme_name+"&imageName=basic_search.gif";this.more_status=false;for(var k=0;k<radios.length;k++){if(isInteger(k)){radios[k].parentNode.parentNode.parentNode.style.display='';}}
 arrow.value='show';}
-var more_div=document.getElementById('more_div_'+this.field_element_name);if(more_div){more_div.innerHTML=arrow.value=='show'?SUGAR.language.get('app_strings','LBL_HIDE'):SUGAR.language.get('app_strings','LBL_SHOW');}}},create_clone:function(){var oneField=document.getElementById('lineFields_'+this.field_element_name+'_0');this.cloneField[0]=SUGAR.isIE?SUGAR.collection.safe_clone(oneField,true):oneField.cloneNode(true);this.cloneField[1]=oneField.parentNode;this.more_status=true;var clone_id=this.form+'_'+this.field+'_collection_0';if(typeof sqs_objects!='undefined'&&typeof sqs_objects[clone_id]!='undefined'){var clone=YAHOO.lang.JSON.stringify(sqs_objects[clone_id]);eval('this.sqs_clone='+clone);}},validateTemSet:function(formname,fieldname){var table_element_id=formname+'_'+fieldname+'_table';if(document.getElementById(table_element_id)){var input_elements=YAHOO.util.Selector.query('input[type=radio]',document.getElementById(table_element_id));var has_primary=false;var primary_field_id=fieldname+'_collection_0';for(t in input_elements){primary_field_id=fieldname+'_collection_'+input_elements[t].value;if(input_elements[t].type&&input_elements[t].type=='radio'&&input_elements[t].checked==true){if(document.forms[formname].elements[primary_field_id].value!=''){has_primary=true;}
+var more_div=document.getElementById('more_div_'+this.field_element_name);if(more_div){more_div.innerHTML=arrow.value=='show'?SUGAR.language.get('app_strings','LBL_HIDE'):SUGAR.language.get('app_strings','LBL_SHOW');}}},create_clone:function(){var oneField=document.getElementById('lineFields_'+this.field_element_name+'_0');this.cloneField[0]=SUGAR.isIE?SUGAR.collection.safe_clone(oneField,true):oneField.cloneNode(true);this.cloneField[1]=oneField.parentNode;var clone_id=this.form+'_'+this.field+'_collection_0';if(typeof sqs_objects!='undefined'&&typeof sqs_objects[clone_id]!='undefined'){var clone=YAHOO.lang.JSON.stringify(sqs_objects[clone_id]);eval('this.sqs_clone='+clone);}},validateTemSet:function(formname,fieldname){var table_element_id=formname+'_'+fieldname+'_table';if(document.getElementById(table_element_id)){var input_elements=YAHOO.util.Selector.query('input[type=radio]',document.getElementById(table_element_id));var has_primary=false;var primary_field_id=fieldname+'_collection_0';for(t in input_elements){primary_field_id=fieldname+'_collection_'+input_elements[t].value;if(input_elements[t].type&&input_elements[t].type=='radio'&&input_elements[t].checked==true){if(document.forms[formname].elements[primary_field_id].value!=''){has_primary=true;}
 break;}}
 if(!has_primary){return false;}
 return true;}
@@ -5434,13 +5434,18 @@ SE.composeLayout = {
         if(json_objects['email_template_object']['fields']['subject'] != '' ) { // cn: bug 7743, don't stomp populated Subject Line
             document.getElementById('emailSubject' + idx).value = decodeURI(encodeURI(json_objects['email_template_object']['fields']['subject']));
         }
-
-        var text = decodeURI(encodeURI(json_objects['email_template_object']['fields']['body_html'])).replace(/<BR>/ig, '\n').replace(/<br>/gi, "\n").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"');
-
-        // cn: bug 14361 - text-only templates don't fill compose screen
-        if(text == '') {
-            text = decodeURI(encodeURI(json_objects['email_template_object']['fields']['body'])).replace(/<BR>/ig, '\n').replace(/<br>/gi, "\n").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"').replace(/\r\n/gi,"<br/>");
+        var text = '';
+        if(json_objects['email_template_object']['fields']['text_only'] == 1){
+        	text = "<p>" + decodeURI(encodeURI(json_objects['email_template_object']['fields']['body'])).replace(/<BR>/ig, '</p><p>').replace(/<br>/gi, "</p><p>").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"') + "</p>";
+        	document.getElementById("setEditor1").checked = true;
+        	SUGAR.email2.composeLayout.renderTinyMCEToolBar('1', 1);
         }
+        else{
+        	text = decodeURI(encodeURI(json_objects['email_template_object']['fields']['body_html'])).replace(/<BR>/ig, '\n').replace(/<br>/gi, "\n").replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#039;/gi,'\'').replace(/&quot;/gi,'"');
+        	document.getElementById("setEditor1").checked = false;
+        	SUGAR.email2.composeLayout.renderTinyMCEToolBar('1', 0);
+        }
+               
 
         var tiny = SE.util.getTiny('htmleditor' + idx);
         var tinyHTML = tiny.getContent();
@@ -5471,7 +5476,7 @@ SE.composeLayout = {
 			return;
         }
 
-        if(idx) {
+        if(idx != null) {
             var sel = document.getElementById('signatures' + idx);
         } else {
             var sel = document.getElementById('signature_id');
@@ -5545,14 +5550,43 @@ SE.composeLayout = {
                 html = htmlPart1 + htmlPart2;
             }
 
-            // [pre|ap]pend
+            // pre|append
 			start = html.indexOf('<div><hr></div>');
             if(SE.userPrefs.signatures.signature_prepend == 'true' && start > -1) {
 				var htmlPart1 = html.substr(0, start);
 				var htmlPart2 = html.substr(start, html.length);
                 var newHtml = htmlPart1 + openTag + newSignature + closeTag + htmlPart2;
             } else if(SUGAR.email2.userPrefs.signatures.signature_prepend == 'true') {
-            	var newHtml = '<br/>' + openTag + newSignature + closeTag + html;
+
+            	//bug 48285
+                var newHtml = html;
+
+                //remove custom spacing
+                var spacing = '<span id="spacing"><br /><br /><br /></span>&nbsp;';
+                var customSpacingStart = html.indexOf(spacing);
+
+                if (customSpacingStart > -1)
+                {
+                    var part1 = newHtml.substr(0, customSpacingStart);
+                    var part2 = newHtml.substr(customSpacingStart+spacing.length, newHtml.length);
+                    newHtml = part1 + part2;
+                }
+
+                //append signature
+                var bodyStartTag = '<body>';
+                var body = newHtml.indexOf(bodyStartTag);
+
+                if (body > -1)
+                {
+                    var part1 = newHtml.substr(0, body+bodyStartTag.length);
+                    var part2 = newHtml.substr(body+bodyStartTag.length, newHtml.length);
+                    newHtml = part1 + spacing + openTag + newSignature + closeTag + part2;
+                }
+                else
+                {
+                    newHtml = openTag + newSignature + closeTag + newHtml;
+                }
+                //end bug 48285
             } else {
                 var body = html.indexOf('</body>');
                 if (body > -1) {
@@ -6043,9 +6077,30 @@ SE.composeLayout = {
         } // if
         //Flag determines if we should clear the tiny contents or just append
         if (typeof(composePackage.clearBody) != 'undefined' && composePackage.clearBody)
+        {
             SE.composeLayout.tinyHTML = '';
+        }
         else
-            SE.composeLayout.tinyHTML = tinyHTML + composePackage.body;
+        {
+            //bug 48179
+            //check tinyHTML for closing tags
+            var body = tinyHTML.lastIndexOf('</body>');
+            spacing = '<span id="spacing"><br /><br /><br /></span>&nbsp;';
+
+            if (body > -1)
+            {
+                var part1 = tinyHTML.substr(0, body);
+                var part2 = tinyHTML.substr(body, tinyHTML.length);
+                var newHtml = part1 + spacing + composePackage.body + part2;
+            }
+            else
+            {
+                var newHtml = tinyHTML + spacing + composePackage.body;
+            }
+            //end bug 48179
+
+            SE.composeLayout.tinyHTML = newHtml;
+        }
 
          tiny.setContent(SE.composeLayout.tinyHTML);
          //Indicate that the contents has been loaded successfully.
@@ -8027,8 +8082,14 @@ var callbackReplyForward = {
 		var t = tinyMCE.getInstanceById('htmleditor' + idx);
         try {
 			var html = t.getContent();
-
-            html = "&nbsp;<div><hr></div>" + a.description;
+			
+			if(typeof a.type != 'undefined' && a.type == 'draft'){
+				html = a.description;
+			}
+			else{
+				html = "&nbsp;<br><div><hr></div>" + a.description;
+			}
+            
 
 			t.setContent(html);//
 

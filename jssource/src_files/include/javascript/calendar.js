@@ -70,10 +70,16 @@ Calendar.setup = function (params) {
         var dateFormat = userDateFormat.substr(0,10);
         var date_field_delimiter = /([-.\\/])/.exec(dateFormat)[0];
         dateFormat = dateFormat.replace(/[^a-zA-Z]/g,'');
-        
+                
         var monthPos = dateFormat.search(/m/);
         var dayPos = dateFormat.search(/d/);
         var yearPos = dateFormat.search(/Y/);         
+        
+        var dateParams = new Object();
+        dateParams.delim = date_field_delimiter;  
+        dateParams.monthPos = monthPos;
+        dateParams.dayPos = dayPos;
+        dateParams.yearPos = yearPos;
         
         Event.on(Dom.get(showButton), "click", function() {
 
@@ -276,23 +282,80 @@ Calendar.setup = function (params) {
                
             }
             
-            var seldate = calendar.getSelectedDates();
-            if (Dom.get(inputField).value.length > 0) {
-            	val = new Date(Dom.get(inputField).value);
-            	if(!isNaN(val.getTime()))
-            	{
-	            	calendar.cfg.setProperty("selected", Dom.get(inputField).value);
-	                seldate = Dom.get(inputField).value.split(date_field_delimiter);       	
-	            	calendar.cfg.setProperty("pagedate", seldate[monthPos] + calendar.cfg.getProperty("DATE_FIELD_DELIMITER") + seldate[yearPos]);
-	            }
-            } else if (seldate.length > 0) {
-                // Set the pagedate to show the selected date if it exists
-                calendar.cfg.setProperty("selected", seldate[0]);
-                var month = seldate[0].getMonth() + 1;
-                var year = seldate[0].getFullYear();
-                calendar.cfg.setProperty("pagedate", month + calendar.cfg.getProperty("DATE_FIELD_DELIMITER") + year);         	
-            }      
-
+            var sanitizeDate = function(date, dateParams){
+            	var dateArray = Array();
+            	var returnArray = Array('','','');
+            	var delimArray = Array(".", "/", "-");
+            	var dateCheck = 0;
+            	
+            	for (var delimCounter = 0; delimCounter < delimArray.length; delimCounter++){
+            		dateArray = date.split(delimArray[delimCounter]);
+            		if(dateArray.length == 3){
+            			break;
+            		}
+            	}
+            	
+            	//If it's not a valid date format, use the current date.
+                
+                //fixing bug #48823: 
+                //'Stack overflow at line : 80' alert displayed when user clicks on the calendar icon 
+                if(dateArray.length != 3)
+                {
+                    var oDate = new Date();
+                    var dateArray = [0,0,0];
+                    dateArray[dateParams.dayPos] = oDate.getDate();
+                    dateArray[dateParams.monthPos] = oDate.getMonth() + 1;
+                    dateArray[dateParams.yearPos] = oDate.getFullYear();
+                }
+            	
+            	for(var i = 0; i < dateArray.length; i++){
+            		if (dateArray[i] > 32){
+            			returnArray[dateParams.yearPos] = dateArray[i];
+            			dateCheck += 1;
+            		}
+            		else if(dateArray[i] <= 12){
+            			
+            			if((dateParams.monthPos < dateParams.dayPos) && (returnArray[dateParams.monthPos] == '')){
+            				returnArray[dateParams.monthPos] = dateArray[i];
+            				dateCheck += 100;
+            			}
+            			else if((dateParams.monthPos > dateParams.dayPos) && (returnArray[dateParams.dayPos] != '')){
+            				returnArray[dateParams.monthPos] = dateArray[i];
+            				dateCheck += 100;
+        				}
+            			else if((dateParams.dayPos < dateParams.monthPos) && (returnArray[dateParams.dayPos] == '')){
+            				returnArray[dateParams.dayPos] = dateArray[i];
+            				dateCheck += 10;
+            			}
+				        else if((dateParams.dayPos > dateParams.monthPos) && (returnArray[dateParams.monthPos] != '')){
+							returnArray[dateParams.dayPos] = dateArray[i];
+							dateCheck += 10;
+						}
+        				 
+            		}
+            		else if(dateArray[i] > 12 && dateArray[i] < 32){
+            			if(returnArray[dateParams.dayPos] != ''){
+            				returnArray[dateParams.monthPos] = returnArray[dateParams.dayPos];
+            				dateCheck -= 10;
+            				dateCheck += 100; 
+            			}
+            			returnArray[dateParams.dayPos] = dateArray[i];
+            			dateCheck += 10;            			
+            		}            		
+            	}
+            	
+            	//if we're not 111, that means we didn't find all date parts
+            	if(dateCheck != 111){
+            		return sanitizeDate("", dateParams);
+            	}
+            	return returnArray.join(dateParams.delim);
+            };
+            
+            var sanitizedDate = sanitizeDate(Dom.get(inputField).value, dateParams);
+            var sanitizedDateArray = sanitizedDate.split(dateParams.delim);
+            calendar.cfg.setProperty("selected", sanitizedDate);
+            calendar.cfg.setProperty("pageDate", sanitizedDateArray[monthPos] + dateParams.delim + sanitizedDateArray[yearPos]);
+                
             calendar.render();
             dialog.show();
         });

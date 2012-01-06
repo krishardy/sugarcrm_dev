@@ -375,6 +375,7 @@ $mod_strings = array (
 	'LNK_USER_LIST'						=> 'View Users',
 	'LNK_REASSIGN_RECORDS'				=> 'Reassign Records',
     'LBL_PROSPECT_LIST'                 => 'Prospect List',
+    'LBL_EMAILS'                        => 'Emails',
     'LBL_PROCESSING'                    => 'Processing',
     'LBL_UPDATE_FINISH'                 => 'Update complete',
     'LBL_AFFECTED'                      => 'affected',

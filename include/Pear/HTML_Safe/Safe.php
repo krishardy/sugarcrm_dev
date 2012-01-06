@@ -662,7 +662,7 @@ class HTML_Safe
      *
      * @return string Processed (X)HTML document
      */
-    public function parse($doc)
+    public function parse($doc, $checkUTF7 = true)
     {
         $result = '';
 
@@ -670,7 +670,8 @@ class HTML_Safe
         $doc = preg_replace("/<(?=[^a-zA-Z\/\!\?\%])/", '&lt;', $doc);
 
         // UTF7 pack
-        $doc = $this->repackUTF7($doc);
+        if($checkUTF7)
+            $doc = $this->repackUTF7($doc);
 
         // Instantiate the parser
         $parser = new XML_HTMLSax3;

@@ -54,6 +54,11 @@ require_once("'".$externalJSFile."'");
 SUGAR.calls = {};
 var callsLoader = new YAHOO.util.YUILoader({
     require : ["sugar_grp_jsolait"],
+    // Bug #48940 Skin always must be blank
+    skin: {
+        base: 'blank',
+        defaultSkin: ''
+    },
     onSuccess: function(){
 		SUGAR.calls.fill_invitees = function() {
 			if (typeof(GLOBAL_REGISTRY) != 'undefined')  {

@@ -173,6 +173,7 @@ $mod_strings = array (
     'LBL_REFERED_BY' => 'Referred By:',
     'LBL_REPORTS_TO_ID'=>'Reports To ID',
     'LBL_REPORTS_TO' => 'Reports To:',
+    'LBL_REPORTS_FROM' => 'Reports From:',
     'LBL_SALUTATION' => 'Salutation',
     'LBL_MODIFIED'=>'Modified By',
 	'LBL_MODIFIED_ID'=>'Modified By Id',

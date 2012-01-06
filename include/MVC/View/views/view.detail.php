@@ -34,41 +34,56 @@
  * "Powered by SugarCRM".
  ********************************************************************************/
 
-/*
- * Created on Apr 13, 2007
- *
- * To change the template for this generated file go to
- * Window - Preferences - PHPeclipse - PHP - Code Templates
- */
 require_once('include/DetailView/DetailView2.php');
 
-class ViewDetail extends SugarView{
-	var $type ='detail';
-	var $dv;
+/**
+ * Default view class for handling DetailViews
+ *
+ * @package MVC
+ * @category Views
+ */
+class ViewDetail extends SugarView
+{
+    /**
+     * @see SugarView::$type
+     */
+    public $type = 'detail';
 	
- 	function ViewDetail(){
- 		parent::SugarView();
- 	}
-
- 	function preDisplay(){
-             //do not override config settings for print
-             if (!isset($_REQUEST['print']) || !$_REQUEST['print']) {
-                 $this->options['show_subpanels'] = true;
-             }
-
-        $metadataFile = $this->getMetaDataFile();
-		$this->dv = new DetailView2();
-		$this->dv->ss =&  $this->ss;
-		$this->dv->setup($this->module, $this->bean, $metadataFile, 'include/DetailView/DetailView.tpl'); 		
- 	} 	
+    /**
+     * @var DetailView2 object 
+     */
+    public $dv;
+	
+    /**
+     * Constructor
+     *
+     * @see SugarView::SugarView()
+     */
+    public function ViewDetail()
+    {
+        parent::SugarView();
+    }
+	
+    /**
+     * @see SugarView::preDisplay()
+     */
+    public function preDisplay()
+    {
+ 	    $metadataFile = $this->getMetaDataFile();
+ 	    $this->dv = new DetailView2();
+ 	    $this->dv->ss =&  $this->ss;
+ 	    $this->dv->setup($this->module, $this->bean, $metadataFile, 'include/DetailView/DetailView.tpl'); 		
+    } 	
  	
- 	function display(){
-		if(empty($this->bean->id)){
-			global $app_strings;
-			sugar_die($app_strings['ERROR_NO_RECORD']);
-		}				
-		$this->dv->process();
-		echo $this->dv->display();
- 	}
-
+    /**
+     * @see SugarView::display()
+     */
+    public function display()
+    {
+        if(empty($this->bean->id)){
+            sugar_die($GLOBALS['app_strings']['ERROR_NO_RECORD']);
+        }				
+        $this->dv->process();
+        echo $this->dv->display();
+    }
 }

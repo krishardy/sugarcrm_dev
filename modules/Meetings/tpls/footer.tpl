@@ -57,6 +57,11 @@
 SUGAR.meetings = {};
 var meetingsLoader = new YAHOO.util.YUILoader({
     require : ["sugar_grp_jsolait"],
+    // Bug #48940 Skin always must be blank
+    skin: {
+        base: 'blank',
+        defaultSkin: ''
+    },
     onSuccess: function(){
 		SUGAR.meetings.fill_invitees = function() {
 			if (typeof(GLOBAL_REGISTRY) != 'undefined')  {
