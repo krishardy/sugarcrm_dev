@@ -79,6 +79,11 @@ class Localization {
 	var $default_export_charset = 'UTF-8';
 	var $default_email_charset = 'UTF-8';
 	var $currencies = array(); // array loaded with current currencies
+	/* Charset mappings for iconv */
+	var $iconvCharsetMap = array(
+		'KS_C_5601-1987' => 'CP949'
+	);
+
 
 
 	/**
@@ -326,7 +331,7 @@ class Localization {
 	 */
     function translateCharset($string, $fromCharset, $toCharset='UTF-8')
     {
-        $GLOBALS['log']->debug("Localization: translating [ {$string} ] into {$toCharset}");
+        $GLOBALS['log']->debug("Localization: translating [{$string}] from {$fromCharset} into {$toCharset}");
 
         // Bug #35413 Function has to use iconv if $fromCharset is not in mb_list_encodings
         $isMb = function_exists('mb_convert_encoding');
@@ -353,7 +358,12 @@ class Localization {
         }
         elseif($isIconv)
         {
-            return iconv($fromCharset, $toCharset, $string);
+	    $newFromCharset = $fromCharset;
+            if (isset($this->iconvCharsetMap[$fromCharset])) {
+                $newFromCharset = $this->iconvCharsetMap[$fromCharset];
+                $GLOBALS['log']->debug("Localization: iconv using charset {$newFromCharset} instead of {$fromCharset}");
+            }
+            return iconv($newFromCharset, $toCharset, $string);
         }
         else
         {

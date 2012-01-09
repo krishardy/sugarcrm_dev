@@ -3086,6 +3086,7 @@ class InboundEmail extends SugarBean {
 		} else { // either PLAIN message type (flowed) or b0rk3d RFC
 			// make sure we're working on valid data here.
 			if($structure->subtype != $type) {
+				$GLOBALS['log']->debug("***ERROR: Returning empty string from getMessageText() because $structure->subtype != $type");
 				return '';
 			}
 
@@ -3116,8 +3117,8 @@ class InboundEmail extends SugarBean {
 		    return $this->cleanXssContent(to_html($msgPart));
 		else
 		{
-            $safedMsgPart = $this->cleanContent($msgPart);
-	   	    return str_replace("<img />", '', $safedMsgPart);
+			$safedMsgPart = $this->cleanContent($msgPart);
+			return str_replace("<img />", '', $safedMsgPart);
 		}
 	}
 
