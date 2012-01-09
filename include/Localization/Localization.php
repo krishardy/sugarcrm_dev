@@ -331,7 +331,7 @@ class Localization {
 	 */
     function translateCharset($string, $fromCharset, $toCharset='UTF-8')
     {
-        $GLOBALS['log']->debug("Localization: translating text from {$fromCharset} into {$toCharset}");
+        $GLOBALS['log']->debug("Localization: translating [{$string}] from {$fromCharset} into {$toCharset}");
 
         // Bug #35413 Function has to use iconv if $fromCharset is not in mb_list_encodings
         $isMb = function_exists('mb_convert_encoding');
@@ -361,7 +361,7 @@ class Localization {
 	    $newFromCharset = $fromCharset;
             if (isset($this->iconvCharsetMap[$fromCharset])) {
                 $newFromCharset = $this->iconvCharsetMap[$fromCharset];
-                $GLOBALS['log']->debug("iconv: Using charset {$newFromCharset} instead of {$fromCharset}");
+                $GLOBALS['log']->debug("Localization: iconv using charset {$newFromCharset} instead of {$fromCharset}");
             }
             return iconv($newFromCharset, $toCharset, $string);
         }
