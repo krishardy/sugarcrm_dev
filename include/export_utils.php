@@ -141,6 +141,8 @@ function export($type, $records = null, $members = false, $sample=false) {
         "shipping_address_country"=>"Shipping Address Country",
         "description"=>"Description"
     );
+    //Array of fields that should not be exported, and are only used for logic
+    $remove_from_members = array("ea_deleted", "ear_deleted", "primary_address");
     $focus = 0;
     $content = '';
 
@@ -215,20 +217,19 @@ function export($type, $records = null, $members = false, $sample=false) {
     $fields_array = get_field_order_mapping($focus->module_dir, $fields_array);
 
     //set up labels to be used for the header row
-    $field_labels = $fields_array;
-    foreach($fields_array as $dbname){
+    $field_labels = array();
+
+    foreach($fields_array as $key=>$dbname){
+        //Remove fields that are only used for logic
+        if($members && (in_array($dbname, $remove_from_members)))
+            continue;
+
         //default to the db name of label does not exist
-        $field_labels[$dbname] = translateForExport($dbname,$focus);
+        $field_labels[$key] = translateForExport($dbname,$focus);
     }
 
     // setup the "header" line with proper delimiters
-    $header = implode("\"".getDelimiter()."\"", array_values($field_labels));
-    if($members){
-        $header = str_replace('"ea_deleted"'.getDelimiter().'"ear_deleted"'.getDelimiter().'"primary_address"'.getDelimiter().'','',$header);
-    }
-    $header = "\"" .$header;
-    $header .= "\"\r\n";
-    $content .= $header;
+    $content = "\"".implode("\"".getDelimiter()."\"", array_values($field_labels))."\"\r\n";
     $pre_id = '';
 
     if($populate){
@@ -248,9 +249,9 @@ function export($type, $records = null, $members = false, $sample=false) {
             if($val['ea_deleted']==1 || $val['ear_deleted']==1){
                 $val['primary_email_address'] = '';
             }
-            unset($val['ea_deleted']);
-            unset($val['ear_deleted']);
-            unset($val['primary_address']);
+            foreach ($remove_from_members as $remove_key) {
+                unset($val[$remove_key]);
+            }
         }
         $pre_id = $val['id'];
 
